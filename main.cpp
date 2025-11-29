@@ -1,17 +1,27 @@
 #include "mainwindow.h"
 #include "logindialog.h"
-#include <QApplication>
-#include<QDir>
+#include "selectionwindow.h"
 #include "navigation.h"
+#include <QApplication>
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    LoginDialog login;
-    if(login.exec()== QDialog::Accepted){
-        MainWindow w;
-        w.show();
-        qDebug() << "Working directory:" << QDir::currentPath();
+
+    while (true) {
+        //Mostrar Login
+        LoginDialog login;
+        if (login.exec() != QDialog::Accepted) {
+            break;
+        }
+        User* currentUser = login.getLoggedUser();
+
+        SelectionWindow selection(currentUser);
+        selection.show();
+
+        QEventLoop loop;
+        QObject::connect(&selection, &QWidget::destroyed, &loop, &QEventLoop::quit);
     }
-    //qDebug() << "DB path:" << Navigation::DEFAULT_DB_PATH();
-    return a.exec();
+
+    return 0;
 }

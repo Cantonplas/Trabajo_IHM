@@ -24,15 +24,12 @@ void LoginDialog::on_pushButton_clicked()
     QString usuario = ui->lineEdit->text();
     QString password = ui->lineEdit_1->text();
 
-    User* loggedUser = Navigation::instance().authenticate(usuario, password); //
+    m_loggedUser = Navigation::instance().authenticate(usuario, password);
 
-    if (loggedUser != nullptr) {
-
+    if (m_loggedUser != nullptr) {
         this->accept();
     } else {
-
         QMessageBox::warning(this, "Error", "Usuario o contraseña incorrectos.");
-        ui->lineEdit_1->clear();
     }
 }
 

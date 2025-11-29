@@ -15,6 +15,7 @@ class LoginDialog : public QDialog
 public:
     explicit LoginDialog(QWidget *parent = nullptr);
     ~LoginDialog();
+    User* getLoggedUser() const { return m_loggedUser; }
 
 private slots:
     // Login:
@@ -24,6 +25,8 @@ private slots:
 
 private:
     Ui::LoginDialog *ui;
+    User *m_loggedUser = nullptr;
+
 };
 
 #endif // LOGINDIALOG_H
