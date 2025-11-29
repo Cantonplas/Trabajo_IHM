@@ -40,14 +40,15 @@ public:
         btnLogout->setGeometry(QRect(549, 427, 111, 31));
         btnRandom = new QPushButton(SelectionWindow);
         btnRandom->setObjectName("btnRandom");
-        btnRandom->setGeometry(QRect(220, 50, 231, 41));
+        btnRandom->setGeometry(QRect(60, 40, 231, 41));
         btnToggleList = new QPushButton(SelectionWindow);
         btnToggleList->setObjectName("btnToggleList");
-        btnToggleList->setGeometry(QRect(220, 110, 231, 41));
+        btnToggleList->setGeometry(QRect(60, 90, 231, 41));
         btnToggleList->setCheckable(true);
         listProblems = new QListWidget(SelectionWindow);
         listProblems->setObjectName("listProblems");
-        listProblems->setGeometry(QRect(220, 150, 231, 311));
+        listProblems->setEnabled(false);
+        listProblems->setGeometry(QRect(60, 130, 461, 311));
 
         retranslateUi(SelectionWindow);
 

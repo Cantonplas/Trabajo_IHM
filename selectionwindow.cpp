@@ -9,12 +9,12 @@
 #include <QMessageBox>
 #include <QEventLoop>
 
-SelectionWindow::SelectionWindow(User *user, QWidget *parent) :
-    QWidget(parent),
+SelectionWindow::SelectionWindow(User *user, QDialog *parent) :
+    QDialog(parent),
     ui(new Ui::SelectionWindow),
     m_currentUser(user)
 {
-    ui->setupUi(reinterpret_cast<QDialog*>(this));
+    ui->setupUi(this);
 
     loadUserData();
     loadProblems();

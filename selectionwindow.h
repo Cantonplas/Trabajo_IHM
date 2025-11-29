@@ -2,7 +2,7 @@
 #ifndef SELECTIONWINDOW_H
 #define SELECTIONWINDOW_H
 
-#include <QWidget>
+#include <QDialog>
 #include <QListWidgetItem>
 #include <QListWidget>
 #include <QEventLoop>
@@ -12,12 +12,12 @@ namespace Ui {
 class SelectionWindow;
 }
 
-class SelectionWindow : public QWidget
+class SelectionWindow : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit SelectionWindow(User *user, QWidget *parent = nullptr);
+    explicit SelectionWindow(User *user, QDialog *parent = nullptr);
     ~SelectionWindow();
 
 private slots:

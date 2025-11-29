@@ -772,8 +772,8 @@ debug/moc_registerdialog.cpp: ../../registerdialog.h \
 	C:\Qt\6.9.2\mingw_64\bin\moc.exe $(DEFINES) --include C:/Clase/Tercero/Uno/Ihm/example_app/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/debug/moc_predefs.h -IC:/Qt/6.9.2/mingw_64/mkspecs/win32-g++ -IC:/Clase/Tercero/Uno/Ihm/example_app -IC:/Clase/Tercero/Uno/Ihm/example_app/lib/include -IC:/Qt/6.9.2/mingw_64/include -IC:/Qt/6.9.2/mingw_64/include/QtWidgets -IC:/Qt/6.9.2/mingw_64/include/QtGui -IC:/Qt/6.9.2/mingw_64/include/QtSql -IC:/Qt/6.9.2/mingw_64/include/QtCore -I. -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++ -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32 -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include -IC:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed -IC:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include ..\..\registerdialog.h -o debug\moc_registerdialog.cpp
 
 debug/moc_selectionwindow.cpp: ../../selectionwindow.h \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QWidget \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qwidget.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QDialog \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialog.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtwidgetsglobal.h \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/qtguiglobal.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/qglobal.h \
@@ -826,6 +826,7 @@ debug/moc_selectionwindow.cpp: ../../selectionwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/qtguiexports.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtwidgets-config.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtwidgetsexports.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qwidget.h \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/qwindowdefs.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/qobjectdefs.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/qnamespace.h \
@@ -989,6 +990,7 @@ debug/moc_selectionwindow.cpp: ../../selectionwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtabwidget.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qrubberband.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QListWidget \
+		C:/Qt/6.9.2/mingw_64/include/QtCore/QEventLoop \
 		../../lib/include/navtypes.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QString \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QDate \
@@ -1267,7 +1269,6 @@ debug/main.o: ../../main.cpp ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/qbuffer.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QMap \
 		../../selectionwindow.h \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QWidget \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QListWidgetItem \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qlistwidget.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qlistview.h \
@@ -1287,6 +1288,7 @@ debug/main.o: ../../main.cpp ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtabbar.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qrubberband.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QListWidget \
+		C:/Qt/6.9.2/mingw_64/include/QtCore/QEventLoop \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QApplication \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qapplication.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\main.o ..\..\main.cpp
@@ -1988,8 +1990,8 @@ debug/registerdialog.o: ../../registerdialog.cpp ../../registerdialog.h \
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\registerdialog.o ..\..\registerdialog.cpp
 
 debug/selectionwindow.o: ../../selectionwindow.cpp ../../selectionwindow.h \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QWidget \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qwidget.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QDialog \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialog.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtwidgetsglobal.h \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/qtguiglobal.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/qglobal.h \
@@ -2042,6 +2044,7 @@ debug/selectionwindow.o: ../../selectionwindow.cpp ../../selectionwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/qtguiexports.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtwidgets-config.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtwidgetsexports.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qwidget.h \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/qwindowdefs.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/qobjectdefs.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/qnamespace.h \
@@ -2205,6 +2208,7 @@ debug/selectionwindow.o: ../../selectionwindow.cpp ../../selectionwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qtabwidget.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qrubberband.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QListWidget \
+		C:/Qt/6.9.2/mingw_64/include/QtCore/QEventLoop \
 		../../lib/include/navtypes.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QString \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QDate \
@@ -2236,8 +2240,6 @@ debug/selectionwindow.o: ../../selectionwindow.cpp ../../selectionwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QMainWindow \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qmainwindow.h \
 		../../registerdialog.h \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QDialog \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialog.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QMenu \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qmenu.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QRandomGenerator \

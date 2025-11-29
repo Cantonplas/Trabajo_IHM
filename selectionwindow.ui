@@ -48,8 +48,8 @@
   <widget class="QPushButton" name="btnRandom">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>50</y>
+     <x>60</x>
+     <y>40</y>
      <width>231</width>
      <height>41</height>
     </rect>
@@ -61,8 +61,8 @@
   <widget class="QPushButton" name="btnToggleList">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>110</y>
+     <x>60</x>
+     <y>90</y>
      <width>231</width>
      <height>41</height>
     </rect>
@@ -75,11 +75,14 @@
    </property>
   </widget>
   <widget class="QListWidget" name="listProblems">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>150</y>
-     <width>231</width>
+     <x>60</x>
+     <y>130</y>
+     <width>461</width>
      <height>311</height>
     </rect>
    </property>
