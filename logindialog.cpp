@@ -9,7 +9,7 @@ LoginDialog::LoginDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->lineEdit_2->setEchoMode(QLineEdit::Password);
+    ui->lineEdit_1->setEchoMode(QLineEdit::Password);
 }
 
 LoginDialog::~LoginDialog()
@@ -22,7 +22,7 @@ LoginDialog::~LoginDialog()
 void LoginDialog::on_pushButton_clicked()
 {
     QString usuario = ui->lineEdit->text();
-    QString password = ui->lineEdit_2->text();
+    QString password = ui->lineEdit_1->text();
 
     User* loggedUser = Navigation::instance().authenticate(usuario, password); //
 
@@ -32,7 +32,7 @@ void LoginDialog::on_pushButton_clicked()
     } else {
 
         QMessageBox::warning(this, "Error", "Usuario o contraseña incorrectos.");
-        ui->lineEdit_2->clear();
+        ui->lineEdit_1->clear();
     }
 }
 
