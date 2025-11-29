@@ -1,3 +1,4 @@
+#pragma once
 #include <QDialog>
 #include "navtypes.h" // Asegúrate de incluir esto
 

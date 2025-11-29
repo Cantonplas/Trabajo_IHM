@@ -1,3 +1,4 @@
+#pragma once
 #ifndef LOGINDIALOG_H
 #define LOGINDIALOG_H
 
@@ -15,18 +16,16 @@ class LoginDialog : public QDialog
 public:
     explicit LoginDialog(QWidget *parent = nullptr);
     ~LoginDialog();
+
     User* getLoggedUser() const { return m_loggedUser; }
 
 private slots:
-    // Login:
     void on_pushButton_clicked();
-    //Registrarse:
     void on_pushButton_2_clicked();
 
 private:
     Ui::LoginDialog *ui;
-    User *m_loggedUser = nullptr;
-
+    User* m_loggedUser = nullptr;
 };
 
 #endif // LOGINDIALOG_H

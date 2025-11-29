@@ -7,6 +7,7 @@
 #include <QMenu>
 #include <QRandomGenerator>
 #include <QMessageBox>
+#include <QEventLoop>
 
 SelectionWindow::SelectionWindow(User *user, QWidget *parent) :
     QWidget(parent),
@@ -28,11 +29,13 @@ SelectionWindow::~SelectionWindow()
 
 void SelectionWindow::loadUserData()
 {
+    if(m_currentUser){
     QPixmap pixmap = QPixmap::fromImage(m_currentUser->avatar());
     if (pixmap.isNull()) {
         // Si no tiene avatar,cargar uno por defecto
     } else {
         ui->btnAvatar->setIcon(QIcon(pixmap));
+    }
     }
 }
 
@@ -66,42 +69,49 @@ void SelectionWindow::on_btnToggleList_toggled(bool checked)
     ui->btnToggleList->setText(checked ? "Ocultar lista ▲" : "Ver lista de problemas ▼");
 }
 
+
+void SelectionWindow::on_listProblems_itemClicked(QListWidgetItem *item)
+{
+    MainWindow *w = new MainWindow();
+    w->setAttribute(Qt::WA_DeleteOnClose);
+    w->show();
+
+    this->hide();
+
+    QEventLoop loop;
+    connect(w, &QWidget::destroyed, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    this->show();
+
+}
 void SelectionWindow::on_btnRandom_clicked()
 {
     const auto &problems = Navigation::instance().problems();
     if (problems.isEmpty()) return;
 
-    int index = QRandomGenerator::global()->bounded(problems.size());
-
-
     MainWindow *w = new MainWindow();
+    w->setAttribute(Qt::WA_DeleteOnClose);
     w->show();
-    this->close();
-}
 
-void SelectionWindow::on_listProblems_itemClicked(QListWidgetItem *item)
-{
-    int index = item->data(Qt::UserRole).toInt();
+    this->hide();
 
-    MainWindow *w = new MainWindow();
+    QEventLoop loop;
+    connect(w, &QWidget::destroyed, &loop, &QEventLoop::quit);
+    loop.exec();
 
-    w->show();
-    this->close();
+    this->show();
 }
 
 void SelectionWindow::on_editProfile_triggered()
 {
-
     RegisterDialog dialog(m_currentUser, this);
-
-
     if (dialog.exec() == QDialog::Accepted) {
-
         loadUserData();
     }
 }
 
 void SelectionWindow::on_btnLogout_clicked()
 {
-    this->close();
+    this->reject();
 }

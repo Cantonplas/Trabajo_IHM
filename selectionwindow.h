@@ -1,9 +1,11 @@
+#pragma once
 #ifndef SELECTIONWINDOW_H
 #define SELECTIONWINDOW_H
 
 #include <QWidget>
 #include <QListWidgetItem>
 #include <QListWidget>
+#include <QEventLoop>
 #include "navtypes.h"
 
 namespace Ui {
