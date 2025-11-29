@@ -1,19 +1,30 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
-#include "navigation.h"
-#include "navdaoexception.h"
-
 #include <QMessageBox>
-#include <QDate>
-#include <QDateTime>
+#include <QGraphicsPixmapItem>
+#include <QDebug>
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(const Problem &problem, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , m_currentProblem(problem) // Guardamos el problema recibido
 {
     ui->setupUi(this);
-    refreshView();
+
+    // Configurar Escena
+    m_scene = new QGraphicsScene(this);
+    ui->graphicsView->setScene(m_scene);
+
+    // Configurar Grupo de Botones para las respuestas
+    m_answerGroup = new QButtonGroup(this);
+    m_answerGroup->addButton(ui->radioAns1, 0);
+    m_answerGroup->addButton(ui->radioAns2, 1);
+    m_answerGroup->addButton(ui->radioAns3, 2);
+    m_answerGroup->addButton(ui->radioAns4, 3);
+
+    // Cargar interfaz y mapa
+    loadChart();
+    setupProblemUI();
 }
 
 MainWindow::~MainWindow()
@@ -21,69 +32,77 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::refreshView()
+void MainWindow::loadChart()
 {
-    ui->textEdit->clear();
+    // IMPORTANTE: Asegúrate de tener "carta_nautica.jpg" en tu archivo de recursos (resources.qrc)
+    // o cambia la ruta a donde tengas la imagen.
+    QPixmap chart(":/carta_nautica.jpg");
 
-    try {
-        Navigation &nav = Navigation::instance();
-
-        ui->textEdit->append("Usuarios:\n");
-        const auto &users = nav.users();
-        for (auto it = users.constBegin(); it != users.constEnd(); ++it) {
-            const User &u = it.value();
-            ui->textEdit->append(
-                QStringLiteral(" - %1 (%2), nacimiento: %3, sesiones: %4")
-                    .arg(u.nickName(),
-                         u.email(),
-                         u.birthdate().toString(Qt::ISODate),
-                         QString::number(u.sessions().size())));
-        }
-
-        ui->textEdit->append("\nProblemas:\n");
-        const auto &problems = nav.problems();
-        for (const Problem &p : problems) {
-            ui->textEdit->append(QStringLiteral(" - %1").arg(p.text()));
-        }
-
-    } catch (const NavDAOException &ex) {
-        QMessageBox::critical(this, tr("DB error"), ex.what());
+    if (chart.isNull()) {
+        m_scene->addText("Error: No se pudo cargar la imagen de la carta náutica.\nVerifica resources.qrc");
+    } else {
+        m_scene->addPixmap(chart);
+        m_scene->setSceneRect(chart.rect());
+        ui->graphicsView->fitInView(m_scene->itemsBoundingRect(), Qt::KeepAspectRatio);
     }
 }
 
-void MainWindow::on_reloadButton_clicked()
+void MainWindow::setupProblemUI()
 {
-    try {
-        Navigation &nav = Navigation::instance();
-        nav.reload();
-        refreshView();
-    } catch (const NavDAOException &ex) {
-        QMessageBox::critical(this, tr("DB error"), ex.what());
+    // Poner el texto del problema
+    ui->labelProblemText->setText(m_currentProblem.text());
+
+    // NOTA: Aquí deberías extraer las respuestas reales de tu objeto 'Problem'
+    // Como navtypes.h no muestra si Problem tiene respuestas, pongo ejemplos.
+    // Si tu clase Problem tiene un método getAnswers(), úsalo aquí.
+
+    /* Ejemplo hipotético si Problem tuviera lista de respuestas:
+    auto answers = m_currentProblem.answers();
+    if(answers.size() > 0) ui->radioAns1->setText(answers[0].text);
+    if(answers.size() > 1) ui->radioAns2->setText(answers[1].text);
+    ...
+    */
+
+    // Por defecto (si no hay datos de respuestas en la BD):
+    ui->radioAns1->setText("12.5 millas");
+    ui->radioAns2->setText("10.2 millas");
+    ui->radioAns3->setText("15.0 millas");
+    ui->radioAns4->setText("9.8 millas");
+}
+
+void MainWindow::on_btnCheck_clicked()
+{
+    int id = m_answerGroup->checkedId();
+    if (id == -1) {
+        QMessageBox::warning(this, "Atención", "Por favor seleccione una respuesta.");
+        return;
+    }
+
+    // Lógica de validación
+    // Aquí deberías comparar con la respuesta correcta del Problem
+    // bool esCorrecta = m_currentProblem.checkAnswer(id);
+
+    // Simulación:
+    bool esCorrecta = (id == 0); // Suponemos que la primera es la correcta para probar
+
+    if (esCorrecta) {
+        QMessageBox::information(this, "Resultado", "¡Correcto!");
+    } else {
+        QMessageBox::critical(this, "Resultado", "Incorrecto. Inténtalo de nuevo.");
     }
 }
 
-void MainWindow::on_addDummyUserButton_clicked()
+void MainWindow::on_btnZoomIn_clicked()
 {
-    try {
-        Navigation &nav = Navigation::instance();
+    ui->graphicsView->scale(1.2, 1.2);
+}
 
-        // Crear usuario si no existe
-        if (!nav.findUser("alumno")) {
-            User u("alumno",
-                   "alumno@example.com",
-                   "1234",
-                   QImage(),
-                   QDate(2000, 1, 1));
-            nav.addUser(u);
-        }
+void MainWindow::on_btnZoomOut_clicked()
+{
+    ui->graphicsView->scale(1.0/1.2, 1.0/1.2);
+}
 
-        // Añadir una sesión de prueba usando SIEMPRE Navigation::addSession
-        Session s(QDateTime::currentDateTime(), 10, 2);
-        nav.addSession("alumno", s);
-
-        refreshView();
-
-    } catch (const NavDAOException &ex) {
-        QMessageBox::critical(this, tr("DB error"), ex.what());
-    }
+void MainWindow::on_btnClose_clicked()
+{
+    this->close();
 }

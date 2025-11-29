@@ -3,7 +3,6 @@
 #include "navigation.h"
 #include "mainwindow.h"
 #include "registerdialog.h"
-#include "mainwindow.h"
 #include <QMenu>
 #include <QRandomGenerator>
 #include <QMessageBox>
@@ -26,28 +25,22 @@ SelectionWindow::~SelectionWindow()
     delete ui;
 }
 
-
 void SelectionWindow::loadUserData()
 {
     if(m_currentUser){
-    QPixmap pixmap = QPixmap::fromImage(m_currentUser->avatar());
-    if (pixmap.isNull()) {
-        // Si no tiene avatar,cargar uno por defecto
-    } else {
-        ui->btnAvatar->setIcon(QIcon(pixmap));
-    }
+        QPixmap pixmap = QPixmap::fromImage(m_currentUser->avatar());
+        if (!pixmap.isNull()) {
+            ui->btnAvatar->setIcon(QIcon(pixmap));
+        }
     }
 }
 
 void SelectionWindow::setupAvatarMenu()
 {
     QMenu *menu = new QMenu(this);
-
     QAction *editAction = menu->addAction("Editar Perfil");
     connect(editAction, &QAction::triggered, this, &SelectionWindow::on_editProfile_triggered);
-
     ui->btnAvatar->setMenu(menu);
-
 }
 
 void SelectionWindow::loadProblems()
@@ -62,42 +55,56 @@ void SelectionWindow::loadProblems()
     }
 }
 
-
 void SelectionWindow::on_btnToggleList_toggled(bool checked)
 {
     ui->listProblems->setVisible(checked);
     ui->btnToggleList->setText(checked ? "Ocultar lista ▲" : "Ver lista de problemas ▼");
 }
 
-
 void SelectionWindow::on_listProblems_itemClicked(QListWidgetItem *item)
 {
-    MainWindow *w = new MainWindow();
-    w->setAttribute(Qt::WA_DeleteOnClose);
-    w->show();
 
-    this->hide();
+    int index = item->data(Qt::UserRole).toInt();
+    const auto &problems = Navigation::instance().problems();
 
-    QEventLoop loop;
-    connect(w, &QWidget::destroyed, &loop, &QEventLoop::quit);
-    loop.exec();
+    if (index >= 0 && index < problems.size()) {
+        const Problem &selectedProblem = problems[index];
 
-    this->show();
 
+        MainWindow *w = new MainWindow(selectedProblem, nullptr);
+        w->setAttribute(Qt::WA_DeleteOnClose);
+
+        this->hide();
+
+
+        QEventLoop loop;
+        connect(w, &QWidget::destroyed, &loop, &QEventLoop::quit);
+        w->show();
+        loop.exec();
+
+        this->show();
+    }
 }
+
 void SelectionWindow::on_btnRandom_clicked()
 {
     const auto &problems = Navigation::instance().problems();
-    if (problems.isEmpty()) return;
+    if (problems.isEmpty()) {
+        QMessageBox::warning(this, "Error", "No hay problemas en la base de datos.");
+        return;
+    }
 
-    MainWindow *w = new MainWindow();
+    int randomIndex = QRandomGenerator::global()->bounded(problems.size());
+    const Problem &randomProblem = problems[randomIndex];
+
+    MainWindow *w = new MainWindow(randomProblem, nullptr);
     w->setAttribute(Qt::WA_DeleteOnClose);
-    w->show();
 
     this->hide();
 
     QEventLoop loop;
     connect(w, &QWidget::destroyed, &loop, &QEventLoop::quit);
+    w->show();
     loop.exec();
 
     this->show();

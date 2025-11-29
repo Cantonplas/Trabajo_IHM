@@ -5,7 +5,6 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include <QListWidget>
-#include <QEventLoop>
 #include "navtypes.h"
 
 namespace Ui {
@@ -34,6 +33,9 @@ private:
     void loadUserData();
     void loadProblems();
     void setupAvatarMenu();
+
+    // Método auxiliar nuevo
+    void openProblem(const Problem &p);
 };
 
 #endif // SELECTIONWINDOW_H
