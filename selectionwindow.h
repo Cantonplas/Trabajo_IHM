@@ -7,6 +7,7 @@
 #include <QListWidget>
 #include "navtypes.h"
 
+extern bool not_logged;
 namespace Ui {
 class SelectionWindow;
 }

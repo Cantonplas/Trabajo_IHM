@@ -120,5 +120,6 @@ void SelectionWindow::on_editProfile_triggered()
 
 void SelectionWindow::on_btnLogout_clicked()
 {
+    not_logged = true;
     this->reject();
 }
