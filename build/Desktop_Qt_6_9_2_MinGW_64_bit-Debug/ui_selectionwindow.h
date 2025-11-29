@@ -12,7 +12,7 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QListView>
+#include <QtWidgets/QListWidget>
 #include <QtWidgets/QPushButton>
 
 QT_BEGIN_NAMESPACE
@@ -24,7 +24,7 @@ public:
     QPushButton *btnLogout;
     QPushButton *btnRandom;
     QPushButton *btnToggleList;
-    QListView *listProblems;
+    QListWidget *listProblems;
 
     void setupUi(QDialog *SelectionWindow)
     {
@@ -45,10 +45,9 @@ public:
         btnToggleList->setObjectName("btnToggleList");
         btnToggleList->setGeometry(QRect(220, 110, 231, 41));
         btnToggleList->setCheckable(true);
-        listProblems = new QListView(SelectionWindow);
+        listProblems = new QListWidget(SelectionWindow);
         listProblems->setObjectName("listProblems");
-        listProblems->setGeometry(QRect(220, 150, 231, 291));
-        listProblems->setSelectionRectVisible(true);
+        listProblems->setGeometry(QRect(220, 150, 231, 311));
 
         retranslateUi(SelectionWindow);
 

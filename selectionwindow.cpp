@@ -3,6 +3,7 @@
 #include "navigation.h"
 #include "mainwindow.h"
 #include "registerdialog.h"
+#include "mainwindow.h"
 #include <QMenu>
 #include <QRandomGenerator>
 #include <QMessageBox>
@@ -12,7 +13,7 @@ SelectionWindow::SelectionWindow(User *user, QWidget *parent) :
     ui(new Ui::SelectionWindow),
     m_currentUser(user)
 {
-    ui->setupUi(this);
+    ui->setupUi(reinterpret_cast<QDialog*>(this));
 
     loadUserData();
     loadProblems();
