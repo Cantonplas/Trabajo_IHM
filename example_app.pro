@@ -8,15 +8,18 @@ TARGET = example_app
 SOURCES += \
     logindialog.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    registerdialog.cpp
 
 HEADERS += \
     logindialog.h \
-    mainwindow.h
+    mainwindow.h \
+    registerdialog.h
 
 FORMS += \
     logindialog.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    registerdialog.ui
 
 # Incluir las cabeceras de la librería
 INCLUDEPATH += $$PWD/lib/include

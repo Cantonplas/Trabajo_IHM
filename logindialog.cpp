@@ -1,4 +1,5 @@
 #include "logindialog.h"
+#include "registerdialog.h"
 #include "ui_logindialog.h"
 #include <QMessageBox>
 
@@ -8,7 +9,6 @@ LoginDialog::LoginDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Opcional: Poner asteriscos en el campo de contraseña
     ui->lineEdit_2->setEchoMode(QLineEdit::Password);
 }
 
@@ -33,5 +33,15 @@ void LoginDialog::on_pushButton_clicked()
 
         QMessageBox::warning(this, "Error", "Usuario o contraseña incorrectos.");
         ui->lineEdit_2->clear();
+    }
+}
+
+void LoginDialog::on_pushButton_2_clicked() // Registrarse:
+{
+    RegisterDialog reg;
+
+
+    if (reg.exec() == QDialog::Accepted) {
+        //ui->lineEdit->setText()//Hacer esto
     }
 }

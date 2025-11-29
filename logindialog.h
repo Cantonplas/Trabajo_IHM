@@ -19,6 +19,8 @@ public:
 private slots:
     // Login:
     void on_pushButton_clicked();
+    //Registrarse:
+    void on_pushButton_2_clicked();
 
 private:
     Ui::LoginDialog *ui;
