@@ -20,9 +20,10 @@ int main(int argc, char *argv[])
 
         currentUser = login.getLoggedUser();
         not_logged = false;
-        }
+        }else{
         SelectionWindow selection(currentUser);
         selection.exec();
+        }
     }
 
     return 0;

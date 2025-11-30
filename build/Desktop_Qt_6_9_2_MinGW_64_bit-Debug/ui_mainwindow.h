@@ -93,7 +93,7 @@ public:
 
         graphicsView = new QGraphicsView(centralwidget);
         graphicsView->setObjectName("graphicsView");
-        graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
+        graphicsView->setDragMode(QGraphicsView::DragMode::ScrollHandDrag);
 
         layoutMap->addWidget(graphicsView);
 
@@ -104,8 +104,8 @@ public:
         frameProblem->setObjectName("frameProblem");
         frameProblem->setMinimumSize(QSize(300, 0));
         frameProblem->setMaximumSize(QSize(300, 16777215));
-        frameProblem->setFrameShape(QFrame::StyledPanel);
-        frameProblem->setFrameShadow(QFrame::Raised);
+        frameProblem->setFrameShape(QFrame::Shape::StyledPanel);
+        frameProblem->setFrameShadow(QFrame::Shadow::Raised);
         verticalLayout = new QVBoxLayout(frameProblem);
         verticalLayout->setObjectName("verticalLayout");
         labelTitle = new QLabel(frameProblem);
@@ -169,7 +169,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
-        menubar->setGeometry(QRect(0, 0, 1024, 22));
+        menubar->setGeometry(QRect(0, 0, 1024, 17));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");

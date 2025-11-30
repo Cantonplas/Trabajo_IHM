@@ -76,7 +76,7 @@
   </widget>
   <widget class="QListWidget" name="listProblems">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>

@@ -34,9 +34,6 @@ private:
     void loadUserData();
     void loadProblems();
     void setupAvatarMenu();
-
-    // Método auxiliar nuevo
-    void openProblem(const Problem &p);
 };
 
 #endif // SELECTIONWINDOW_H

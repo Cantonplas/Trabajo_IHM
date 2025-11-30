@@ -3,7 +3,7 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QButtonGroup>
-#include "navtypes.h" // Asegúrate de que este header define 'Problem'
+#include "navtypes.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -14,7 +14,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    // Modificamos el constructor para recibir el Problema seleccionado
     explicit MainWindow(const Problem &problem, QWidget *parent = nullptr);
     ~MainWindow();
 

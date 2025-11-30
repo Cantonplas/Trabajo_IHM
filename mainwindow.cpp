@@ -7,22 +7,18 @@
 MainWindow::MainWindow(const Problem &problem, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , m_currentProblem(problem) // Guardamos el problema recibido
+    , m_currentProblem(problem)
 {
     ui->setupUi(this);
-
-    // Configurar Escena
     m_scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(m_scene);
 
-    // Configurar Grupo de Botones para las respuestas
     m_answerGroup = new QButtonGroup(this);
     m_answerGroup->addButton(ui->radioAns1, 0);
     m_answerGroup->addButton(ui->radioAns2, 1);
     m_answerGroup->addButton(ui->radioAns3, 2);
     m_answerGroup->addButton(ui->radioAns4, 3);
 
-    // Cargar interfaz y mapa
     loadChart();
     setupProblemUI();
 }
@@ -34,8 +30,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::loadChart()
 {
-    // IMPORTANTE: Asegúrate de tener "carta_nautica.jpg" en tu archivo de recursos (resources.qrc)
-    // o cambia la ruta a donde tengas la imagen.
     QPixmap chart(":/carta_nautica.jpg");
 
     if (chart.isNull()) {
@@ -49,21 +43,13 @@ void MainWindow::loadChart()
 
 void MainWindow::setupProblemUI()
 {
-    // Poner el texto del problema
     ui->labelProblemText->setText(m_currentProblem.text());
 
-    // NOTA: Aquí deberías extraer las respuestas reales de tu objeto 'Problem'
-    // Como navtypes.h no muestra si Problem tiene respuestas, pongo ejemplos.
-    // Si tu clase Problem tiene un método getAnswers(), úsalo aquí.
-
-    /* Ejemplo hipotético si Problem tuviera lista de respuestas:
+    /* Algo asi?
     auto answers = m_currentProblem.answers();
     if(answers.size() > 0) ui->radioAns1->setText(answers[0].text);
     if(answers.size() > 1) ui->radioAns2->setText(answers[1].text);
-    ...
     */
-
-    // Por defecto (si no hay datos de respuestas en la BD):
     ui->radioAns1->setText("12.5 millas");
     ui->radioAns2->setText("10.2 millas");
     ui->radioAns3->setText("15.0 millas");
@@ -78,11 +64,9 @@ void MainWindow::on_btnCheck_clicked()
         return;
     }
 
-    // Lógica de validación
-    // Aquí deberías comparar con la respuesta correcta del Problem
-    // bool esCorrecta = m_currentProblem.checkAnswer(id);
+    //esCorrecta = m_currentProblem.checkAnswer(id);??
 
-    // Simulación:
+    // Prueba por ahora:
     bool esCorrecta = (id == 0); // Suponemos que la primera es la correcta para probar
 
     if (esCorrecta) {

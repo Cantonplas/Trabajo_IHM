@@ -47,7 +47,7 @@ public:
         btnToggleList->setCheckable(true);
         listProblems = new QListWidget(SelectionWindow);
         listProblems->setObjectName("listProblems");
-        listProblems->setEnabled(false);
+        listProblems->setEnabled(true);
         listProblems->setGeometry(QRect(60, 130, 461, 311));
 
         retranslateUi(SelectionWindow);
