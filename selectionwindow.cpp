@@ -14,6 +14,7 @@ SelectionWindow::SelectionWindow(User *user, QDialog *parent) :
     m_currentUser(user)
 {
     ui->setupUi(this);
+    ui->listProblems->setVisible(false);
 
     loadUserData();
     loadProblems();
