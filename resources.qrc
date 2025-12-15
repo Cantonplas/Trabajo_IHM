@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/carta_nautica.jpg</file>
+        <file>resources/icons/compass_leg.svg</file>
+        <file>resources/icons/ruler.svg</file>
+        <file>resources/icons/transportador.svg</file>
+        <file>resources/icons/punto.svg</file>
+        <file>resources/icons/ruler_icon.svg</file>
+        <file>resources/icons/compas_icon.svg</file>
+        <file>resources/icons/transportador_icon.svg</file>
+        <file>resources/icons/Linea_icon.svg</file>
+        <file>resources/icons/colores.svg</file>
+        <file>resources/icons/coordenadas.svg</file>
+        <file>resources/icons/ocultar.svg</file>
+        <file>resources/icons/T.svg</file>
+        <file>resources/icons/eraser.svg</file>
+    </qresource>
+</RCC>
