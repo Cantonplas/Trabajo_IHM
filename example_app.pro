@@ -1,4 +1,4 @@
-QT       += core gui sql
+QT       += core gui widgets sql svgwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,7 +17,8 @@ HEADERS += \
     mainwindow.h \
     logindialog.h \
     registerdialog.h \
-    selectionwindow.h
+    selectionwindow.h \
+    tool.h
 
 FORMS += \
     mainwindow.ui \
@@ -30,3 +31,15 @@ INCLUDEPATH += $$PWD/lib/include
 DEPENDPATH += $$PWD/lib/include
 
 LIBS += -L$$PWD/lib -lnavlib
+
+RESOURCES += \
+    resources.qrc \
+    resources/resources.qrc \
+    ressources.qrc
+
+DISTFILES += \
+    resources/carta_nautica.jpg \
+    resources/icons/Punto.svg \
+    resources/icons/compass_leg.svg \
+    resources/icons/ruler.svg \
+    resources/icons/transportador.svg
