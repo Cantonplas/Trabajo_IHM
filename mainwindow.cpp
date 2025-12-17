@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "registerdialog.h" // Si vas a editar perfil
+#include <QRandomGenerator> // Para el random
 #include <QMessageBox>
 #include <QGraphicsPixmapItem>
 #include <QDebug>
@@ -18,31 +20,41 @@
 // CONSTRUCTOR / DESTRUCTOR
 // =========================================================================
 
-MainWindow::MainWindow(const Problem &problem, QWidget *parent)
+MainWindow::MainWindow(User* currentUser, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , m_currentProblem(problem)
+    , m_currentUser(currentUser) // Guardamos usuario
     , m_currentMode(NONE)
-    , m_protractorItem(nullptr)
-    , m_rulerItem(nullptr)
+// ... inicializadores ...
 {
     ui->setupUi(this);
+
+    // 1. Configuración básica de Escena
     m_scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(m_scene);
+    ui->graphicsView->viewport()->installEventFilter(this);
+    ui->listProblems->setVisible(false);
 
+    // 2. Configurar Grupos de Botones (igual que antes)
     m_answerGroup = new QButtonGroup(this);
-    m_answerGroup->addButton(ui->radioAns1, 0);
-    m_answerGroup->addButton(ui->radioAns2, 1);
-    m_answerGroup->addButton(ui->radioAns3, 2);
-    m_answerGroup->addButton(ui->radioAns4, 3);
-
+    // ... añadir radio buttons ...
     setupToolIcons();
     setupToolModes();
 
-    ui->graphicsView->viewport()->installEventFilter(this);
-
+    // 3. Cargar el mapa (se queda cargado al fondo)
     loadChart();
-    setupProblemUI();
+
+    m_blurEffect = new QGraphicsBlurEffect(this);
+    m_blurEffect->setBlurRadius(15); // Nivel de borrosidad (0 a 100)
+
+    // IMPORTANTE: Aplicar el efecto SOLO al contenedor del juego
+    ui->gameContentContainer->setGraphicsEffect(m_blurEffect);
+
+    // 5. Inicializar la UI del Overlay (Lista de problemas, avatar)
+    initOverlayUI();
+
+    // 6. Activar modo selección al inicio
+    toggleSelectionMode(true);
 }
 
 MainWindow::~MainWindow()
@@ -51,6 +63,103 @@ MainWindow::~MainWindow()
     if (m_rulerItem) delete m_rulerItem;
 
     delete ui;
+}
+
+/*
+// Mantiene el overlay centrado y del tamaño correcto
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+    // Hacemos que el overlay ocupe todo el centro o lo centramos
+    if (ui->selectionOverlay->isVisible()) {
+        ui->selectionOverlay->resize(this->size());
+        ui->selectionOverlay->move(0, 0);
+    }
+}*/
+
+void MainWindow::initOverlayUI()
+{
+    // Cargar avatar
+    if(m_currentUser){
+        QPixmap pixmap = QPixmap::fromImage(m_currentUser->avatar());
+        if (!pixmap.isNull()) {
+            ui->btnAvatar->setIcon(QIcon(pixmap));
+        }
+    }
+
+    // Cargar problemas en la lista (UI element que moviste al overlay)
+    ui->listProblems->clear();
+    const auto &problems = Navigation::instance().problems();
+    for (int i = 0; i < problems.size(); ++i) {
+        QListWidgetItem *item = new QListWidgetItem(problems[i].text());
+        item->setData(Qt::UserRole, i);
+        ui->listProblems->addItem(item);
+    }
+
+    ui->listProblems->setVisible(false);
+    ui->btnToggleList->setChecked(false);
+    ui->btnToggleList->setText("Ver lista de problemas ▼");
+}
+
+void MainWindow::on_btnToggleList_toggled(bool checked)
+{
+    ui->listProblems->setVisible(checked);
+    ui->btnToggleList->setText(checked ? "Ocultar lista ▲" : "Ver lista de problemas ▼");
+}
+
+void MainWindow::toggleSelectionMode(bool enable)
+{
+    if (enable) {
+        // MOSTRAR SELECCIÓN
+        ui->selectionOverlay->setVisible(true);
+        ui->selectionOverlay->raise(); // Traer al frente
+        m_blurEffect->setEnabled(true); // Activar borroso al fondo
+        ui->gameContentContainer->setEnabled(false); // Desactivar clicks en el mapa
+    } else {
+        // MOSTRAR JUEGO
+        ui->selectionOverlay->setVisible(false);
+        m_blurEffect->setEnabled(false); // Quitar borroso
+        ui->gameContentContainer->setEnabled(true); // Reactivar mapa
+    }
+}
+
+// SLOT: Cuando seleccionan un problema de la lista
+void MainWindow::on_listProblems_itemClicked(QListWidgetItem *item)
+{
+    int index = item->data(Qt::UserRole).toInt();
+    const auto &problems = Navigation::instance().problems();
+
+    if (index >= 0 && index < problems.size()) {
+        m_currentProblem = problems[index]; // Asignar problema actual
+        setupProblemUI(); // Cargar textos del problema en la UI del juego
+
+        // OCULTAR la selección y mostrar el juego
+        toggleSelectionMode(false);
+    }
+}
+
+// SLOT: Botón Random
+void MainWindow::on_btnRandom_clicked()
+{
+    const auto &problems = Navigation::instance().problems();
+    if (!problems.isEmpty()) {
+        int randomIndex = QRandomGenerator::global()->bounded(problems.size());
+        m_currentProblem = problems[randomIndex];
+        setupProblemUI();
+        toggleSelectionMode(false);
+    }
+}
+
+// SLOT: Avatar (Opcional, si quieres editar perfil)
+void MainWindow::on_btnAvatar_clicked()
+{
+    // Reutilizas RegisterDialog
+    RegisterDialog dialog(m_currentUser, this);
+    if (dialog.exec() == QDialog::Accepted) {
+        // Recargar icono
+        QPixmap pixmap = QPixmap::fromImage(m_currentUser->avatar());
+        ui->btnAvatar->setIcon(QIcon(pixmap));
+    }
 }
 
 // =========================================================================
@@ -257,17 +366,25 @@ void MainWindow::loadChart()
 
 void MainWindow::setupProblemUI()
 {
+    // 1. Poner el texto del problema
     ui->labelProblemText->setText(m_currentProblem.text());
 
-    /* Algo asi?
-    auto answers = m_currentProblem.answers();
-    if(answers.size() > 0) ui->radioAns1->setText(answers[0].text);
-    if(answers.size() > 1) ui->radioAns2->setText(answers[1].text);
-    */
-    ui->radioAns1->setText("12.5 millas");
-    ui->radioAns2->setText("10.2 millas");
-    ui->radioAns3->setText("15.0 millas");
-    ui->radioAns4->setText("9.8 millas");
+    // 2. Obtener las respuestas
+    QVector<Answer> answers = m_currentProblem.answers();
+
+    // 3. Asignar el texto a los botones
+    // CORRECCIÓN: Añadimos () porque .text() es una función
+    if (answers.size() > 0) ui->radioAns1->setText(answers[0].text());
+    if (answers.size() > 1) ui->radioAns2->setText(answers[1].text());
+    if (answers.size() > 2) ui->radioAns3->setText(answers[2].text());
+    if (answers.size() > 3) ui->radioAns4->setText(answers[3].text());
+
+    // 4. Reiniciar selección
+    if(m_answerGroup->checkedButton()) {
+        m_answerGroup->setExclusive(false);
+        m_answerGroup->checkedButton()->setChecked(false);
+        m_answerGroup->setExclusive(true);
+    }
 }
 
 void MainWindow::on_btnCheck_clicked()

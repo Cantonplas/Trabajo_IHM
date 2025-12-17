@@ -11,8 +11,10 @@
 #include "navtypes.h"
 #include <QSvgRenderer>       // Necesario para cargar SVGs en el .cpp (aunque usemos PixmapItem)
 #include "tool.h"
-
-// =========================================================================
+#include <QGraphicsBlurEffect> // IMPORTANTE: Para el efecto borroso
+#include <QListWidgetItem>     // Para la lista
+#include "navigation.h"        // Para acceder a los problemas
+#include "tool.h"// =========================================================================
 // DEFINICIÓN DE MODOS DE EDICIÓN
 // =========================================================================
 enum DrawMode {
@@ -36,52 +38,61 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(const Problem &problem, QWidget *parent = nullptr);
+    // CAMBIO 1: El constructor ya no pide un "Problem", sino el "User"
+    explicit MainWindow(User* currentUser, QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    // CAMBIO 2: Necesario para mantener el overlay centrado si cambias el tamaño de ventana
+    //void resizeEvent(QResizeEvent *event) override;
+
 private slots:
-    // Slots Originales
+    // Slots existentes...
     void on_btnZoomIn_clicked();
     void on_btnZoomOut_clicked();
     void on_btnCheck_clicked();
     void on_btnClose_clicked();
-
-    // Slots AÑADIDOS para los botones de acción
-    void on_btnClearMap_clicked();      // 3.7 Limpiar la carta
-    void on_btnChangeColor_clicked();   // 3.5 Cambiar el color
-
-    // Slot AÑADIDO para manejar el estado de los botones chequeables (modos)
+    void on_btnClearMap_clicked();
+    void on_btnChangeColor_clicked();
     void onToolModeToggled(QAbstractButton *button, bool checked);
-
-    //Dibujo de lineas (click derecho)
     void setDrawLineMode(bool enabled);
 
+    // NUEVOS SLOTS (Traídos de SelectionWindow)
+    void on_listProblems_itemClicked(QListWidgetItem *item); // Al hacer clic en un problema
+    void on_btnRandom_clicked(); // Botón aleatorio
+    void on_btnAvatar_clicked(); // Para editar perfil (si tienes botón)
+    void on_btnToggleList_toggled(bool checked);
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *m_scene;
     Problem m_currentProblem;
+    User* m_currentUser; // Guardamos el usuario
     QButtonGroup *m_answerGroup;
 
-    // Variables AÑADIDAS para la lógica de herramientas
-    DrawMode m_currentMode;                               // Modo de edición actual
+    // Efecto de desenfoque
+    QGraphicsBlurEffect *m_blurEffect;
 
-    // Herramientas que heredan de QGraphicsItem (Usando QGraphicsPixmapItem renderizado)
-    QGraphicsPixmapItem *m_protractorItem = nullptr;         // 3.8 Transportador
-    QGraphicsPixmapItem *m_rulerItem = nullptr;              // 3.9 Regla/Distancia
-    QButtonGroup *m_toolGroup = nullptr;                     // Grupo para la exclusividad de herramientas
+    // Variables de herramientas (tus variables existentes)...
+    DrawMode m_currentMode;
+    QGraphicsPixmapItem *m_protractorItem = nullptr;
+    QGraphicsPixmapItem *m_rulerItem = nullptr;
+    QButtonGroup *m_toolGroup = nullptr;
+    QPointF m_lineStart;
+    QGraphicsLineItem *m_currentLineItem = nullptr;
 
     // Funciones Auxiliares
     void loadChart();
-    void setupProblemUI();
+    void setupProblemUI(); // Actualiza la interfaz con el problema seleccionado
 
-    void setupToolIcons();      // Inicializa los iconos en C++ (si no están en el .ui)
-    void setupToolModes();      // Configura QButtonGroup y las conexiones
-    void showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&item); // Función auxiliar para mostrar herramientas
+    // Funciones nuevas de inicialización
+    void initOverlayUI();  // Configura la lista y avatar
+    void toggleSelectionMode(bool enable); // Activa/Desactiva el modo selección (blur)
 
-    //Dibujo de lineas
-    QPointF m_lineStart;                     // Punto de inicio de la línea (coordenadas de la escena)
-    QGraphicsLineItem *m_currentLineItem = nullptr; // Puntero a la línea que se está arrastrando
-
-    // Sobrescribir eventFilter para capturar el ratón en la vista
+    // Event filter...
     bool eventFilter(QObject *watched, QEvent *event) override;
+
+    // Herramientas visuales
+    void setupToolIcons();
+    void setupToolModes();
+    void showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&item);
 };

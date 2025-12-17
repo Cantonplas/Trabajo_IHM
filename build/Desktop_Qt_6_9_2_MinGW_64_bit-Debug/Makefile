@@ -307,12 +307,15 @@ Makefile: ../../example_app.pro C:/Qt/6.9.2/mingw_64/mkspecs/win32-g++/qmake.con
 		C:/Qt/6.9.2/mingw_64/mkspecs/features/yacc.prf \
 		C:/Qt/6.9.2/mingw_64/mkspecs/features/lex.prf \
 		../../example_app.pro \
+		C:/Qt/6.9.2/mingw_64/lib/Qt6SvgWidgets.prl \
 		C:/Qt/6.9.2/mingw_64/lib/Qt6Widgets.prl \
+		C:/Qt/6.9.2/mingw_64/lib/Qt6Svg.prl \
 		C:/Qt/6.9.2/mingw_64/lib/Qt6Gui.prl \
 		C:/Qt/6.9.2/mingw_64/lib/Qt6Sql.prl \
 		C:/Qt/6.9.2/mingw_64/lib/Qt6Core.prl \
 		C:/Qt/6.9.2/mingw_64/lib/Qt6EntryPoint.prl \
-		C:/Qt/6.9.2/mingw_64/mkspecs/features/build_pass.prf
+		C:/Qt/6.9.2/mingw_64/mkspecs/features/build_pass.prf \
+		../../resources.qrc
 	$(QMAKE) -o Makefile ..\..\example_app.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 C:/Qt/6.9.2/mingw_64/mkspecs/features/spec_pre.prf:
 C:/Qt/6.9.2/mingw_64/mkspecs/features/device_config.prf:
@@ -551,12 +554,15 @@ C:/Qt/6.9.2/mingw_64/mkspecs/features/exceptions.prf:
 C:/Qt/6.9.2/mingw_64/mkspecs/features/yacc.prf:
 C:/Qt/6.9.2/mingw_64/mkspecs/features/lex.prf:
 ../../example_app.pro:
+C:/Qt/6.9.2/mingw_64/lib/Qt6SvgWidgets.prl:
 C:/Qt/6.9.2/mingw_64/lib/Qt6Widgets.prl:
+C:/Qt/6.9.2/mingw_64/lib/Qt6Svg.prl:
 C:/Qt/6.9.2/mingw_64/lib/Qt6Gui.prl:
 C:/Qt/6.9.2/mingw_64/lib/Qt6Sql.prl:
 C:/Qt/6.9.2/mingw_64/lib/Qt6Core.prl:
 C:/Qt/6.9.2/mingw_64/lib/Qt6EntryPoint.prl:
 C:/Qt/6.9.2/mingw_64/mkspecs/features/build_pass.prf:
+../../resources.qrc:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ..\..\example_app.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 

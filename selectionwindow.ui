@@ -13,79 +13,173 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="btnAvatar">
+  <widget class="QWidget" name="selectionOverlay" native="true">
    <property name="geometry">
     <rect>
-     <x>590</x>
-     <y>20</y>
-     <width>50</width>
-     <height>50</height>
+     <x>470</x>
+     <y>210</y>
+     <width>251</width>
+     <height>181</height>
     </rect>
    </property>
-   <property name="text">
-    <string>PushButton</string>
-   </property>
-   <property name="iconSize">
-    <size>
-     <width>40</width>
-     <height>40</height>
-    </size>
-   </property>
+   <widget class="QPushButton" name="btnLogout_2">
+    <property name="geometry">
+     <rect>
+      <x>549</x>
+      <y>437</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cerrar sesión</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnRandom_2">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>50</y>
+      <width>231</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>¡Problema aleatorio!</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnAvatar_2">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>30</y>
+      <width>50</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>PushButton</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>40</width>
+      <height>40</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnToggleList_2">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>100</y>
+      <width>231</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ver lista de problemas ▼</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listProblems_2">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>140</y>
+      <width>461</width>
+      <height>311</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
-  <widget class="QPushButton" name="btnLogout">
+  <widget class="QWidget" name="gameContentContainer" native="true">
    <property name="geometry">
     <rect>
-     <x>549</x>
-     <y>427</y>
-     <width>111</width>
-     <height>31</height>
+     <x>20</x>
+     <y>0</y>
+     <width>561</width>
+     <height>541</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Cerrar sesión</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnRandom">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>40</y>
-     <width>231</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>¡Problema aleatorio!</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnToggleList">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>90</y>
-     <width>231</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Ver lista de problemas ▼</string>
-   </property>
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QListWidget" name="listProblems">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>130</y>
-     <width>461</width>
-     <height>311</height>
-    </rect>
-   </property>
+   <widget class="QPushButton" name="btnRandom">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>40</y>
+      <width>231</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>¡Problema aleatorio!</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnToggleList">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>100</y>
+      <width>231</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ver lista de problemas ▼</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listProblems">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>461</width>
+      <height>311</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnLogout">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>60</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cerrar sesión</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnAvatar">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>0</y>
+      <width>50</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>PushButton</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>40</width>
+      <height>40</height>
+     </size>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>
