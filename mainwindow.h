@@ -62,6 +62,7 @@ private slots:
     void on_btnRandom_clicked(); // Botón aleatorio
     void on_btnAvatar_clicked(); // Para editar perfil (si tienes botón)
     void on_btnToggleList_toggled(bool checked);
+    //void on_btn
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *m_scene;

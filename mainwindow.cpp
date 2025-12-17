@@ -88,11 +88,24 @@ void MainWindow::initOverlayUI()
     }
 
     // Cargar problemas en la lista (UI element que moviste al overlay)
+    ui->listProblems->setWordWrap(true);
+    ui->listProblems->setTextElideMode(Qt::ElideNone);
+    ui->listProblems->setResizeMode(QListView::Adjust); // Ajustar al redimensionar
+    ui->listProblems->setSpacing(5);
+
+    // Limpiar y cargar problemas
     ui->listProblems->clear();
     const auto &problems = Navigation::instance().problems();
+
     for (int i = 0; i < problems.size(); ++i) {
         QListWidgetItem *item = new QListWidgetItem(problems[i].text());
+
+        // Opcional: Dar un poco de altura extra si se ve muy apretado,
+        // aunque con WordWrap suele calcularlo solo, a veces ayuda poner un SizeHint mínimo
+        // item->setSizeHint(QSize(0, 50));
+
         item->setData(Qt::UserRole, i);
+
         ui->listProblems->addItem(item);
     }
 
@@ -372,38 +385,79 @@ void MainWindow::setupProblemUI()
     // 2. Obtener las respuestas
     QVector<Answer> answers = m_currentProblem.answers();
 
-    // 3. Asignar el texto a los botones
-    // CORRECCIÓN: Añadimos () porque .text() es una función
-    if (answers.size() > 0) ui->radioAns1->setText(answers[0].text());
-    if (answers.size() > 1) ui->radioAns2->setText(answers[1].text());
-    if (answers.size() > 2) ui->radioAns3->setText(answers[2].text());
-    if (answers.size() > 3) ui->radioAns4->setText(answers[3].text());
-
-    // 4. Reiniciar selección
-    if(m_answerGroup->checkedButton()) {
-        m_answerGroup->setExclusive(false);
-        m_answerGroup->checkedButton()->setChecked(false);
-        m_answerGroup->setExclusive(true);
+    // 3. Limpiar el grupo de botones anterior para evitar conflictos
+    QList<QAbstractButton*> buttons = m_answerGroup->buttons();
+    for(QAbstractButton* button : buttons) {
+        m_answerGroup->removeButton(button);
     }
+
+    // 4. Asignar texto y AÑADIR AL GRUPO CON ID (0, 1, 2, 3)
+    if (answers.size() > 0) {
+        ui->radioAns1->setText(answers[0].text());
+        ui->radioAns1->setVisible(true);
+        m_answerGroup->addButton(ui->radioAns1, 0); // ID 0
+    } else ui->radioAns1->setVisible(false);
+
+    if (answers.size() > 1) {
+        ui->radioAns2->setText(answers[1].text());
+        ui->radioAns2->setVisible(true);
+        m_answerGroup->addButton(ui->radioAns2, 1); // ID 1
+    } else ui->radioAns2->setVisible(false);
+
+    if (answers.size() > 2) {
+        ui->radioAns3->setText(answers[2].text());
+        ui->radioAns3->setVisible(true);
+        m_answerGroup->addButton(ui->radioAns3, 2); // ID 2
+    } else ui->radioAns3->setVisible(false);
+
+    if (answers.size() > 3) {
+        ui->radioAns4->setText(answers[3].text());
+        ui->radioAns4->setVisible(true);
+        m_answerGroup->addButton(ui->radioAns4, 3); // ID 3
+    } else ui->radioAns4->setVisible(false);
+
+    // 5. Reiniciar selección (ninguno marcado)
+    // El truco es poner setExclusive(false), desmarcar, y volver a true.
+    m_answerGroup->setExclusive(false);
+    if(m_answerGroup->checkedButton()) {
+        m_answerGroup->checkedButton()->setChecked(false);
+    }
+    m_answerGroup->setExclusive(true);
 }
+
+#include <QMessageBox> // Asegúrate de tener este include arriba
 
 void MainWindow::on_btnCheck_clicked()
 {
-    int id = m_answerGroup->checkedId();
-    if (id == -1) {
-        QMessageBox::warning(this, "Atención", "Por favor seleccione una respuesta.");
+    // 1. Verificar si hay algo seleccionado
+    if(m_answerGroup->checkedId() == -1) {
+        QMessageBox::warning(this, "Aviso", "Por favor selecciona una respuesta.");
         return;
     }
 
-    //esCorrecta = m_currentProblem.checkAnswer(id);??
+    // 2. Obtener el índice seleccionado (0, 1, 2 o 3)
+    int selectedIndex = m_answerGroup->checkedId();
 
-    // Prueba por ahora:
-    bool esCorrecta = (id == 0); // Suponemos que la primera es la correcta para probar
+    // 3. Comprobar si es correcto usando los datos del problema
+    // Asumimos que tu clase Answer tiene un método 'isCorrect()' o 'correct()'
+    // Verifica en navtypes.h cómo se llama. Suele ser .valid o .correct
 
-    if (esCorrecta) {
-        QMessageBox::information(this, "Resultado", "¡Correcto!");
+    QVector<Answer> answers = m_currentProblem.answers();
+    bool isCorrect = false;
+
+    // Protección por si el índice se sale del rango
+    if(selectedIndex >= 0 && selectedIndex < answers.size()){
+        // Aquí depende de tu clase Answer.
+        // Si tu clase Answer tiene un booleano público 'valid':
+        isCorrect = answers[selectedIndex].validity();
+
+        // O SI ES UNA FUNCIÓN, usa: answers[selectedIndex].isValid() o similar.
+    }
+
+    if(isCorrect) {
+        QMessageBox::information(this, "¡Correcto!", "¡Has acertado la respuesta!");
     } else {
-        QMessageBox::critical(this, "Resultado", "Incorrecto. Inténtalo de nuevo.");
+        QMessageBox::critical(this, "Incorrecto", "Esa no es la respuesta correcta.");
     }
 }
 
@@ -419,7 +473,7 @@ void MainWindow::on_btnZoomOut_clicked()
 
 void MainWindow::on_btnClose_clicked()
 {
-    this->close();
+    toggleSelectionMode(true);
 }
 
 // =========================================================================
