@@ -552,7 +552,43 @@
     <item row="0" column="0">
      <widget class="QWidget" name="selectionOverlay" native="true">
       <property name="styleSheet">
-       <string>background-color: rgba(255, 255, 255, 225);</string>
+       <string>
+#selectionOverlay {
+    background-color: rgba(20, 30, 40, 220); 
+}
+#selectionOverlay QLabel, #selectionOverlay QCheckBox {
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 14px;
+}
+#selectionOverlay QListWidget {
+    background-color: #f0f0f0;
+    color: #000000;
+    border: 2px solid #5da4d6;
+    border-radius: 6px;
+    font-size: 13px;
+}
+#selectionOverlay QPushButton {
+    background-color: #3498db; 
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    font-weight: bold;
+    font-size: 14px;
+}
+#selectionOverlay QPushButton:hover {
+    background-color: #5dade2;
+}
+#selectionOverlay QPushButton:pressed {
+    background-color: #2980b9;
+}
+#selectionOverlay #btnAvatar {
+    background-color: transparent;
+    border: 2px solid white;
+    border-radius: 40px; 
+}
+       </string>
       </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -561,6 +597,12 @@
        </sizepolicy>
       </property>
       <layout class="QVBoxLayout" name="verticalLayoutOverlay">
+       <property name="leftMargin">
+        <number>60</number>
+       </property>
+       <property name="rightMargin">
+        <number>20</number>
+       </property>
        
        <item>
         <layout class="QHBoxLayout" name="horizontalLayoutTopBar">
@@ -624,20 +666,23 @@
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>100</height>
           </size>
          </property>
         </spacer>
        </item>
 
-       <item alignment="Qt::AlignHCenter">
+       <item alignment="Qt::AlignLeft">
         <widget class="QPushButton" name="btnRandom">
          <property name="minimumSize">
           <size>
-           <width>300</width>
+           <width>480</width>
            <height>50</height>
           </size>
          </property>
@@ -652,11 +697,11 @@
          </property>
         </widget>
        </item>
-       <item alignment="Qt::AlignHCenter">
+       <item alignment="Qt::AlignLeft">
         <widget class="QPushButton" name="btnToggleList">
          <property name="minimumSize">
           <size>
-           <width>300</width>
+           <width>480</width>
            <height>40</height>
           </size>
          </property>
@@ -668,17 +713,17 @@
          </property>
         </widget>
        </item>
-       <item alignment="Qt::AlignHCenter">
+       <item alignment="Qt::AlignLeft">
         <widget class="QListWidget" name="listProblems">
          <property name="minimumSize">
           <size>
-           <width>500</width>
+           <width>480</width>
            <height>300</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>600</width>
+           <width>700</width>
            <height>16777215</height>
           </size>
          </property>
@@ -689,6 +734,9 @@
         <spacer name="verticalSpacerBottom">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>

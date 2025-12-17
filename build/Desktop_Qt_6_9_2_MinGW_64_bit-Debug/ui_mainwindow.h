@@ -111,15 +111,15 @@ public:
         frameTools->setObjectName("frameTools");
         frameTools->setMinimumSize(QSize(80, 0));
         frameTools->setMaximumSize(QSize(80, 16777215));
-        frameTools->setFrameShape(QFrame::Shape::StyledPanel);
-        frameTools->setFrameShadow(QFrame::Shadow::Raised);
+        frameTools->setFrameShape(QFrame::StyledPanel);
+        frameTools->setFrameShadow(QFrame::Raised);
         verticalLayoutTools = new QVBoxLayout(frameTools);
         verticalLayoutTools->setSpacing(5);
         verticalLayoutTools->setObjectName("verticalLayoutTools");
         verticalLayoutTools->setContentsMargins(5, 5, 5, 5);
         labelDrawTitle = new QLabel(frameTools);
         labelDrawTitle->setObjectName("labelDrawTitle");
-        labelDrawTitle->setAlignment(Qt::AlignmentFlag::AlignCenter);
+        labelDrawTitle->setAlignment(Qt::AlignCenter);
 
         verticalLayoutTools->addWidget(labelDrawTitle);
 
@@ -175,7 +175,7 @@ public:
 
         labelMeasureTitle = new QLabel(frameTools);
         labelMeasureTitle->setObjectName("labelMeasureTitle");
-        labelMeasureTitle->setAlignment(Qt::AlignmentFlag::AlignCenter);
+        labelMeasureTitle->setAlignment(Qt::AlignCenter);
 
         verticalLayoutTools->addWidget(labelMeasureTitle);
 
@@ -288,7 +288,7 @@ public:
 
         graphicsView = new QGraphicsView(gameContentContainer);
         graphicsView->setObjectName("graphicsView");
-        graphicsView->setDragMode(QGraphicsView::DragMode::ScrollHandDrag);
+        graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
 
         layoutMap->addWidget(graphicsView);
 
@@ -299,8 +299,8 @@ public:
         frameProblem->setObjectName("frameProblem");
         frameProblem->setMinimumSize(QSize(300, 0));
         frameProblem->setMaximumSize(QSize(300, 16777215));
-        frameProblem->setFrameShape(QFrame::Shape::StyledPanel);
-        frameProblem->setFrameShadow(QFrame::Shadow::Raised);
+        frameProblem->setFrameShape(QFrame::StyledPanel);
+        frameProblem->setFrameShadow(QFrame::Raised);
         verticalLayoutProblem = new QVBoxLayout(frameProblem);
         verticalLayoutProblem->setObjectName("verticalLayoutProblem");
         labelTitle = new QLabel(frameProblem);
@@ -368,49 +368,9 @@ public:
         selectionOverlay->setObjectName("selectionOverlay");
         sizePolicy.setHeightForWidth(selectionOverlay->sizePolicy().hasHeightForWidth());
         selectionOverlay->setSizePolicy(sizePolicy);
-        selectionOverlay->setStyleSheet(QString::fromUtf8("#selectionOverlay {\n"
-"    background-color: rgba(20, 30, 40, 220); \n"
-"}\n"
-"\n"
-"#selectionOverlay QLabel, #selectionOverlay QCheckBox {\n"
-"    color: #ffffff;\n"
-"    font-weight: bold;\n"
-"    font-size: 14px;\n"
-"}\n"
-"\n"
-"#selectionOverlay QListWidget {\n"
-"    background-color: #f0f0f0;\n"
-"    color: #000000;\n"
-"    border: 2px solid #5da4d6;\n"
-"    border-radius: 6px;\n"
-"    font-size: 13px;\n"
-"}\n"
-"\n"
-"#selectionOverlay QPushButton {\n"
-"    background-color: #3498db; \n"
-"    color: white;\n"
-"    border: none;\n"
-"    border-radius: 6px;\n"
-"    padding: 8px;\n"
-"    font-weight: bold;\n"
-"    font-size: 14px;\n"
-"}\n"
-"\n"
-"#selectionOverlay QPushButton:hover {\n"
-"    background-color: #5dade2;\n"
-"}\n"
-"\n"
-"#selectionOverlay QPushButton:pressed {\n"
-"    background-color: #2980b9;\n"
-"}\n"
-"\n"
-"#selectionOverlay #btnAvatar {\n"
-"    background-color: transparent;\n"
-"    border: 2px solid white;\n"
-"    border-radius: 40px; \n"
-"}"));
         verticalLayoutOverlay = new QVBoxLayout(selectionOverlay);
         verticalLayoutOverlay->setObjectName("verticalLayoutOverlay");
+        verticalLayoutOverlay->setContentsMargins(60, -1, 20, -1);
         horizontalLayoutTopBar = new QHBoxLayout();
         horizontalLayoutTopBar->setObjectName("horizontalLayoutTopBar");
         horizontalSpacerTop = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
@@ -439,31 +399,33 @@ public:
 
         verticalLayoutOverlay->addLayout(horizontalLayoutTopBar);
 
-        verticalSpacerTop2 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+        verticalSpacerTop2 = new QSpacerItem(20, 100, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
 
         verticalLayoutOverlay->addItem(verticalSpacerTop2);
 
         btnRandom = new QPushButton(selectionOverlay);
         btnRandom->setObjectName("btnRandom");
-        btnRandom->setMinimumSize(QSize(300, 50));
-        btnRandom->setFont(font);
+        btnRandom->setMinimumSize(QSize(480, 50));
+        QFont font1;
+        font1.setPointSize(12);
+        font1.setBold(true);
+        btnRandom->setFont(font1);
 
-        verticalLayoutOverlay->addWidget(btnRandom);
+        verticalLayoutOverlay->addWidget(btnRandom, 0, Qt::AlignLeft);
 
         btnToggleList = new QPushButton(selectionOverlay);
         btnToggleList->setObjectName("btnToggleList");
-        btnToggleList->setEnabled(true);
-        btnToggleList->setMinimumSize(QSize(300, 40));
+        btnToggleList->setMinimumSize(QSize(480, 40));
         btnToggleList->setCheckable(true);
 
-        verticalLayoutOverlay->addWidget(btnToggleList);
+        verticalLayoutOverlay->addWidget(btnToggleList, 0, Qt::AlignLeft);
 
         listProblems = new QListWidget(selectionOverlay);
         listProblems->setObjectName("listProblems");
-        listProblems->setMinimumSize(QSize(500, 300));
-        listProblems->setMaximumSize(QSize(600, 16777215));
+        listProblems->setMinimumSize(QSize(480, 300));
+        listProblems->setMaximumSize(QSize(700, 16777215));
 
-        verticalLayoutOverlay->addWidget(listProblems);
+        verticalLayoutOverlay->addWidget(listProblems, 0, Qt::AlignLeft);
 
         verticalSpacerBottom = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
@@ -475,7 +437,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
-        menubar->setGeometry(QRect(0, 0, 1024, 17));
+        menubar->setGeometry(QRect(0, 0, 1024, 26));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
@@ -532,6 +494,43 @@ public:
         radioAns4->setText(QCoreApplication::translate("MainWindow", "Opci\303\263n D", nullptr));
         btnCheck->setText(QCoreApplication::translate("MainWindow", "Comprobar Respuesta", nullptr));
         btnClose->setText(QCoreApplication::translate("MainWindow", "Volver a Selecci\303\263n", nullptr));
+        selectionOverlay->setStyleSheet(QCoreApplication::translate("MainWindow", "\n"
+"#selectionOverlay {\n"
+"    background-color: rgba(20, 30, 40, 220); \n"
+"}\n"
+"#selectionOverlay QLabel, #selectionOverlay QCheckBox {\n"
+"    color: #ffffff;\n"
+"    font-weight: bold;\n"
+"    font-size: 14px;\n"
+"}\n"
+"#selectionOverlay QListWidget {\n"
+"    background-color: #f0f0f0;\n"
+"    color: #000000;\n"
+"    border: 2px solid #5da4d6;\n"
+"    border-radius: 6px;\n"
+"    font-size: 13px;\n"
+"}\n"
+"#selectionOverlay QPushButton {\n"
+"    background-color: #3498db; \n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"    padding: 8px;\n"
+"    font-weight: bold;\n"
+"    font-size: 14px;\n"
+"}\n"
+"#selectionOverlay QPushButton:hover {\n"
+"    background-color: #5dade2;\n"
+"}\n"
+"#selectionOverlay QPushButton:pressed {\n"
+"    background-color: #2980b9;\n"
+"}\n"
+"#selectionOverlay #btnAvatar {\n"
+"    background-color: transparent;\n"
+"    border: 2px solid white;\n"
+"    border-radius: 40px; \n"
+"}\n"
+"       ", nullptr));
         btnAvatar->setText(QString());
         btnLogout->setText(QCoreApplication::translate("MainWindow", "Cerrar sesi\303\263n", nullptr));
         btnRandom->setText(QCoreApplication::translate("MainWindow", "\302\241Problema aleatorio!", nullptr));
