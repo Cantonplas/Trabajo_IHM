@@ -7,17 +7,18 @@
 #include <QGraphicsLineItem>
 #include <QGraphicsView>
 #include <QAbstractButton>
-#include <QGraphicsItem>      // Clase base
-#include <QGraphicsPixmapItem> // Clase que usaremos para las herramientas
+#include <QGraphicsItem>
+#include <QGraphicsPixmapItem>
 #include "navtypes.h"
-#include <QSvgRenderer>       // Necesario para cargar SVGs en el .cpp (aunque usemos PixmapItem)
+#include <QSvgRenderer>
 #include "tool.h"
-#include <QGraphicsBlurEffect> // IMPORTANTE: Para el efecto borroso
-#include <QListWidgetItem>     // Para la lista
-#include "navigation.h"        // Para acceder a los problemas
-#include "tool.h"// =========================================================================
-// DEFINICIÓN DE MODOS DE EDICIÓN
-// =========================================================================
+#include <QGraphicsBlurEffect>
+#include <QListWidgetItem>
+#include "navigation.h"
+#include "statsdialog.h"
+#include <QMenu>
+#include <QDateTime>
+
 enum DrawMode {
     NONE,
     POINT_MODE,
@@ -28,7 +29,6 @@ enum DrawMode {
     RULER_MODE,
     ERASER_MODE
 };
-// =========================================================================
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -42,22 +42,22 @@ public:
     explicit MainWindow(User* currentUser, QWidget *parent = nullptr);
     ~MainWindow();
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 private slots:
-    // --- HERRAMIENTAS Y MAPA ---
     void on_btnZoomIn_clicked();
     void on_btnZoomOut_clicked();
     void on_btnClearMap_clicked();
     void on_btnChangeColor_clicked();
     void onToolModeToggled(QAbstractButton *button, bool checked);
-    void on_btnShowCoordinates_clicked(bool checked); // Asegúrate de tener este slot o borrarlo si no lo usas
+    void on_btnShowCoordinates_clicked(bool checked);
 
-    // --- PANEL DE PROBLEMAS (STACKED WIDGET) ---
     void on_listProblems_itemClicked(QListWidgetItem *item);
     void on_btnRandom_clicked();
     void on_btnCheck_clicked();
-    void on_btnClose_clicked(); // Botón "Volver a la lista"
+    void on_btnClose_clicked();
 
-    // --- USUARIO ---
     void on_btnAvatar_clicked();
     void on_btnLogout_clicked();
 
@@ -68,7 +68,13 @@ private:
     User* m_currentUser;
     QButtonGroup *m_answerGroup;
 
-    // --- HERRAMIENTAS DE DIBUJO ---
+
+    int m_sessionHits;
+    int m_sessionFaults;
+    QDateTime m_sessionStart;
+    void saveCurrentSession();
+    void updateAvatarUI();
+
     DrawMode m_currentMode;
     QGraphicsPixmapItem *m_protractorItem = nullptr;
     QGraphicsPixmapItem *m_rulerItem = nullptr;
@@ -76,17 +82,14 @@ private:
     QPointF m_lineStart;
     QGraphicsLineItem *m_currentLineItem = nullptr;
 
-    // --- FUNCIONES AUXILIARES ---
-    void loadChart();
-    void setupProblemUI(int index);;      // Rellena los datos del problema en la UI
-    void initSelectionList();   // Inicializa la lista de problemas
-
-    // Navegación del panel derecho
-    void showSelectionView();   // Muestra la página 0 (Lista)
-    void showProblemView();     // Muestra la página 1 (Problema)
     void setDrawLineMode(bool enabled);
+    void loadChart();
+    void setupProblemUI(int index);
+    void initSelectionList();
 
-    // Eventos
+    void showSelectionView();
+    void showProblemView();
+
     bool eventFilter(QObject *watched, QEvent *event) override;
     void setupToolIcons();
     void setupToolModes();

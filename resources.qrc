@@ -14,5 +14,6 @@
         <file>resources/icons/ocultar.svg</file>
         <file>resources/icons/T.svg</file>
         <file>resources/icons/eraser.svg</file>
+        <file>resources/user_default.png</file>
     </qresource>
 </RCC>

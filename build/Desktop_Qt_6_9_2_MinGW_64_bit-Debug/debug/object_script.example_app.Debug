@@ -2,9 +2,9 @@ debug/main.o
 debug/mainwindow.o
 debug/logindialog.o
 debug/registerdialog.o
-debug/selectionwindow.o
+debug/statsdialog.o
 debug/qrc_resources.o
 debug/moc_mainwindow.o
 debug/moc_logindialog.o
 debug/moc_registerdialog.o
-debug/moc_selectionwindow.o
+debug/moc_statsdialog.o

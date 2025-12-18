@@ -1,24 +1,21 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "registerdialog.h" // Si vas a editar perfil
-#include <QRandomGenerator> // Para el random
+#include "registerdialog.h"
+#include <QRandomGenerator>
 #include <QMessageBox>
 #include <QGraphicsPixmapItem>
 #include <QDebug>
 #include <QButtonGroup>
 #include <QIcon>
-#include <QMouseEvent> // NUEVO
-#include <QKeyEvent> // NUEVO
-#include <QPen> // NUEVO
-#include <QApplication> F
+#include <QMouseEvent>
+#include <QKeyEvent>
+#include <QPen>
+#include <QApplication>
 #include <QColorDialog>
 #include <QPixmap>
 #include <QPainter>
-#include <QSvgRenderer> // Necesario para la renderización
-
-// =========================================================================
-// CONSTRUCTOR / DESTRUCTOR
-// =========================================================================
+#include <QSvgRenderer>
+#include <QFileDialog>
 
 MainWindow::MainWindow(User* currentUser, QWidget *parent)
     : QMainWindow(parent)
@@ -27,26 +24,21 @@ MainWindow::MainWindow(User* currentUser, QWidget *parent)
     , m_currentMode(NONE)
 {
     ui->setupUi(this);
+    m_sessionStart = QDateTime::currentDateTime();
 
-    // 1. Configurar Escena
     m_scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(m_scene);
     ui->graphicsView->viewport()->installEventFilter(this);
 
-    // 2. Configurar Grupos de Botones
     m_answerGroup = new QButtonGroup(this);
-    // (Los botones de respuesta se añaden dinámicamente luego)
 
-    // Configurar herramientas
     setupToolIcons();
     setupToolModes();
 
-    // 3. Cargar el mapa
     loadChart();
 
-    // 4. Inicializar panel derecho
     initSelectionList();
-    showSelectionView(); // Empezar mostrando la lista
+    showSelectionView();
 }
 
 MainWindow::~MainWindow()
@@ -60,19 +52,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::showSelectionView()
 {
-    // Muestra la página 0 del StackedWidget (La lista de problemas)
     ui->stackedWidgetProblem->setCurrentIndex(0);
 }
 
 void MainWindow::showProblemView()
 {
-    // Muestra la página 1 del StackedWidget (El detalle del problema)
     ui->stackedWidgetProblem->setCurrentIndex(1);
 }
 
 void MainWindow::initSelectionList()
 {
-    // 1. Configurar Avatar
     if(m_currentUser){
         QPixmap pixmap = QPixmap::fromImage(m_currentUser->avatar());
         if (!pixmap.isNull()) {
@@ -81,20 +70,17 @@ void MainWindow::initSelectionList()
         }
     }
 
-    // 2. Configurar Lista
     ui->listProblems->clear();
 
-    // --- CONFIGURACIÓN PARA QUE EL TEXTO NO SE CORTE ---
-    ui->listProblems->setWordWrap(true);                   // Permite saltos de línea
-    ui->listProblems->setTextElideMode(Qt::ElideNone);     // Prohíbe poner "..." al final
-    ui->listProblems->setResizeMode(QListView::Adjust);    // Se adapta si cambias el tamaño de ventana
-    ui->listProblems->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // Scroll suave
-    ui->listProblems->setSpacing(12);                      // Espacio entre problemas
-    // ---------------------------------------------------
+    ui->listProblems->setWordWrap(true);
+    ui->listProblems->setTextElideMode(Qt::ElideNone);
+    ui->listProblems->setResizeMode(QListView::Adjust);
+    ui->listProblems->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    ui->listProblems->setSpacing(12);
+
 
     const auto &problems = Navigation::instance().problems();
     for (int i = 0; i < problems.size(); ++i) {
-        // IMPORTANTE: Aquí pasamos el texto COMPLETO (problems[i].text()), sin .left()
         QString labelText = QString("%1. %2").arg(i + 1).arg(problems[i].text());
 
         QListWidgetItem *item = new QListWidgetItem(labelText);
@@ -103,7 +89,6 @@ void MainWindow::initSelectionList()
     }
 }
 
-// SLOT: Cuando seleccionan un problema de la lista
 void MainWindow::on_listProblems_itemClicked(QListWidgetItem *item)
 {
     int index = item->data(Qt::UserRole).toInt();
@@ -111,19 +96,18 @@ void MainWindow::on_listProblems_itemClicked(QListWidgetItem *item)
 
     if (index >= 0 && index < problems.size()) {
         m_currentProblem = problems[index];
-        setupProblemUI(index); // <--- AQUI: Pasamos el 'index'
+        setupProblemUI(index);
         showProblemView();
     }
 }
 
-// SLOT: Botón Random
 void MainWindow::on_btnRandom_clicked()
 {
     const auto &problems = Navigation::instance().problems();
     if (!problems.isEmpty()) {
         int randomIndex = QRandomGenerator::global()->bounded(problems.size());
         m_currentProblem = problems[randomIndex];
-        setupProblemUI(randomIndex); // <--- AQUI: Pasamos el 'randomIndex'
+        setupProblemUI(randomIndex);
         showProblemView();
     }
 }
@@ -132,26 +116,69 @@ void MainWindow::on_btnShowCoordinates_clicked(bool checked) {
     // Tu lógica de coordenadas
 }
 
-// SLOT: Avatar (Opcional, si quieres editar perfil)
 void MainWindow::on_btnAvatar_clicked()
 {
-    RegisterDialog dialog(m_currentUser, this);
-    if (dialog.exec() == QDialog::Accepted) {
-        // Actualizar el icono si cambió
-        QPixmap pixmap = QPixmap::fromImage(m_currentUser->avatar());
-        ui->btnAvatar->setIcon(QIcon(pixmap));
-    }
+    QMenu menu(this);
+
+    QAction* actionPhoto = menu.addAction("Cambiar foto de perfil");
+    connect(actionPhoto, &QAction::triggered, this, [this]() {
+        QString fileName = QFileDialog::getOpenFileName(this,
+                                                        "Seleccionar Imagen", "", "Imágenes (*.png *.jpg *.jpeg)");
+
+        if (!fileName.isEmpty()) {
+            QImage newImg(fileName);
+            if (!newImg.isNull()) {
+                QImage smallImg = newImg.scaled(128, 128, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                m_currentUser->setAvatar(smallImg);
+                Navigation::instance().updateUser(*m_currentUser);
+                updateAvatarUI();
+                QMessageBox::information(this, "Perfil", "Foto actualizada.");
+            }
+        }
+    });
+
+    QAction* actionProfile = menu.addAction("Modificar datos personales");
+    connect(actionProfile, &QAction::triggered, this, [this]() {
+        RegisterDialog dialog(m_currentUser, this);
+        if (dialog.exec() == QDialog::Accepted) {
+            updateAvatarUI();
+        }
+    });
+
+    menu.addSeparator();
+    QAction* actionStats = menu.addAction("Ver mis Estadísticas");
+    connect(actionStats, &QAction::triggered, this, [this]() {
+        StatsDialog dialog(m_currentUser, this);
+        dialog.exec();
+    });
+
+    menu.addSeparator();
+    QAction* actionLogout = menu.addAction("Cerrar Sesión");
+    connect(actionLogout, &QAction::triggered, this, &MainWindow::on_btnLogout_clicked);
+
+    menu.exec(ui->btnAvatar->mapToGlobal(QPoint(0, ui->btnAvatar->height())));
 }
 
-// =========================================================================
-// FUNCIONES DE INICIALIZACIÓN Y AUXILIARES
-// =========================================================================
+void MainWindow::updateAvatarUI() {
+    QPixmap pixmap;
+    if (!m_currentUser->avatar().isNull()) {
+        pixmap = QPixmap::fromImage(m_currentUser->avatar());
+    }
+
+    if (pixmap.isNull()) {
+        pixmap.load(":/resources/user_default.png");
+    }
+
+    if (!pixmap.isNull()) {
+        ui->btnAvatar->setIcon(QIcon(pixmap));
+        ui->btnAvatar->setIconSize(QSize(40, 40));
+    }
+}
 
 void MainWindow::setupToolIcons()
 {
     QSize iconSize(40, 40);
 
-    // Carga del icono Punto.jpg (para el botón btnDrawPoint)
     QIcon pointIcon(":/resources/Punto.jpg");
 
     if (!pointIcon.isNull()) {
@@ -165,7 +192,7 @@ void MainWindow::setupToolIcons()
 void MainWindow::setupToolModes()
 {
     m_toolGroup = new QButtonGroup(this);
-    m_toolGroup->setExclusive(true); // Solo una herramienta activa a la vez
+    m_toolGroup->setExclusive(true);
 
     m_toolGroup->addButton(ui->btnPunto);
     m_toolGroup->addButton(ui->btnDrawLine);
@@ -174,13 +201,11 @@ void MainWindow::setupToolModes()
     m_toolGroup->addButton(ui->btnProtractor);
     m_toolGroup->addButton(ui->btnRulerDistance);
     m_toolGroup->addButton(ui->btnEraser);
-    m_toolGroup->addButton(ui->btnShowCoordinates); // Si es checkable
+    m_toolGroup->addButton(ui->btnShowCoordinates);
 
-    // Conectar la señal de cambio de herramienta
     connect(m_toolGroup, &QButtonGroup::buttonToggled, this, &MainWindow::onToolModeToggled);
 }
 
-// mainwindow.cpp (Modificación dentro de showSvgTool)
 
 void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&item)
 {
@@ -316,10 +341,6 @@ void MainWindow::on_btnChangeColor_clicked()
     }
 }
 
-// =========================================================================
-// CÓDIGO ORIGINAL (SIN MODIFICAR)
-// =========================================================================
-
 void MainWindow::loadChart()
 {
     QPixmap pixmap(":/resources/carta_nautica.jpg");
@@ -335,18 +356,12 @@ void MainWindow::loadChart()
 
 void MainWindow::setupProblemUI(int index)
 {
-    // ELIMINAMOS ESTA LÍNEA QUE DABA EL ERROR:
-    // int index = Navigation::instance().problems().indexOf(m_currentProblem);
-
-    // Usamos directamente el 'index' que nos pasan
     ui->labelTitle->setText(QString("Problema #%1").arg(index + 1));
 
-    // ... (El resto de la función se queda IGUAL) ...
     ui->textProblemDescription->setText(m_currentProblem.text());
 
     QVector<Answer> answers = m_currentProblem.answers();
 
-    // Limpiar grupo previo
     QList<QAbstractButton*> buttons = m_answerGroup->buttons();
     for(QAbstractButton* button : buttons) {
         m_answerGroup->removeButton(button);
@@ -375,23 +390,40 @@ void MainWindow::setupProblemUI(int index)
 
 void MainWindow::on_btnCheck_clicked()
 {
-    // Verificar si hay selección
     int id = m_answerGroup->checkedId();
     if(id == -1) {
         QMessageBox::warning(this, "Aviso", "Por favor selecciona una respuesta.");
         return;
     }
 
-    // Verificar si es correcta
     QVector<Answer> answers = m_currentProblem.answers();
     if (id >= 0 && id < answers.size()) {
-        if(answers[id].validity()) {
+        bool isCorrect = answers[id].validity();
+
+        if(isCorrect) {
+            m_sessionHits++;
             QMessageBox::information(this, "¡Correcto!", "¡Has acertado la respuesta!");
         } else {
+            m_sessionFaults++;
             QMessageBox::critical(this, "Incorrecto", "Esa no es la respuesta correcta.");
         }
+        // ---------------------------------------------------------
     }
 }
+
+void MainWindow::saveCurrentSession()
+{
+    if (m_sessionHits == 0 && m_sessionFaults == 0) {
+        return;
+    }
+
+    Session finalSession(m_sessionStart, m_sessionHits, m_sessionFaults);
+
+    Navigation::instance().addSession(m_currentUser->nickName(), finalSession);
+
+    qDebug() << "Sesión guardada:" << m_sessionHits << "aciertos," << m_sessionFaults << "fallos.";
+}
+
 
 void MainWindow::on_btnZoomIn_clicked()
 {
@@ -410,7 +442,15 @@ void MainWindow::on_btnClose_clicked()
 
 void MainWindow::on_btnLogout_clicked()
 {
+    saveCurrentSession();
     QApplication::exit(1000);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    saveCurrentSession();
+
+    QMainWindow::closeEvent(event);
 }
 // =========================================================================
 // CÓDIGO AÑADIDO: Lógica de Dibujo de Líneas (Basado en el profesor)

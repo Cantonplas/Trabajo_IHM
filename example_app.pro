@@ -10,18 +10,21 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     logindialog.cpp \
-    registerdialog.cpp
+    registerdialog.cpp \
+    statsdialog.cpp
 
 HEADERS += \
     mainwindow.h \
     logindialog.h \
     registerdialog.h \
+    statsdialog.h \
     tool.h
 
 FORMS += \
     mainwindow.ui \
     logindialog.ui \
-    registerdialog.ui
+    registerdialog.ui \
+    statsdialog.ui
 
 
 INCLUDEPATH += $$PWD/lib/include
