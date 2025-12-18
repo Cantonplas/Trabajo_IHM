@@ -42,22 +42,21 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "on_btnZoomIn_clicked",
         "",
         "on_btnZoomOut_clicked",
-        "on_btnCheck_clicked",
-        "on_btnClose_clicked",
         "on_btnClearMap_clicked",
         "on_btnChangeColor_clicked",
         "onToolModeToggled",
         "QAbstractButton*",
         "button",
         "checked",
-        "setDrawLineMode",
-        "enabled",
+        "on_btnShowCoordinates_clicked",
         "on_listProblems_itemClicked",
         "QListWidgetItem*",
         "item",
         "on_btnRandom_clicked",
+        "on_btnCheck_clicked",
+        "on_btnClose_clicked",
         "on_btnAvatar_clicked",
-        "on_btnToggleList_toggled"
+        "on_btnLogout_clicked"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -65,34 +64,32 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'on_btnZoomOut_clicked'
         QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'on_btnCheck_clicked'
-        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'on_btnClose_clicked'
-        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'on_btnClearMap_clicked'
-        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(4, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'on_btnChangeColor_clicked'
-        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(5, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'onToolModeToggled'
-        QtMocHelpers::SlotData<void(QAbstractButton *, bool)>(8, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 9, 10 }, { QMetaType::Bool, 11 },
+        QtMocHelpers::SlotData<void(QAbstractButton *, bool)>(6, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 7, 8 }, { QMetaType::Bool, 9 },
         }}),
-        // Slot 'setDrawLineMode'
-        QtMocHelpers::SlotData<void(bool)>(12, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Bool, 13 },
+        // Slot 'on_btnShowCoordinates_clicked'
+        QtMocHelpers::SlotData<void(bool)>(10, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Bool, 9 },
         }}),
         // Slot 'on_listProblems_itemClicked'
-        QtMocHelpers::SlotData<void(QListWidgetItem *)>(14, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 15, 16 },
+        QtMocHelpers::SlotData<void(QListWidgetItem *)>(11, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 12, 13 },
         }}),
         // Slot 'on_btnRandom_clicked'
-        QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'on_btnCheck_clicked'
+        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'on_btnClose_clicked'
+        QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'on_btnAvatar_clicked'
+        QtMocHelpers::SlotData<void()>(17, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'on_btnLogout_clicked'
         QtMocHelpers::SlotData<void()>(18, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'on_btnToggleList_toggled'
-        QtMocHelpers::SlotData<void(bool)>(19, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Bool, 11 },
-        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -118,23 +115,23 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         switch (_id) {
         case 0: _t->on_btnZoomIn_clicked(); break;
         case 1: _t->on_btnZoomOut_clicked(); break;
-        case 2: _t->on_btnCheck_clicked(); break;
-        case 3: _t->on_btnClose_clicked(); break;
-        case 4: _t->on_btnClearMap_clicked(); break;
-        case 5: _t->on_btnChangeColor_clicked(); break;
-        case 6: _t->onToolModeToggled((*reinterpret_cast< std::add_pointer_t<QAbstractButton*>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<bool>>(_a[2]))); break;
-        case 7: _t->setDrawLineMode((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
-        case 8: _t->on_listProblems_itemClicked((*reinterpret_cast< std::add_pointer_t<QListWidgetItem*>>(_a[1]))); break;
-        case 9: _t->on_btnRandom_clicked(); break;
+        case 2: _t->on_btnClearMap_clicked(); break;
+        case 3: _t->on_btnChangeColor_clicked(); break;
+        case 4: _t->onToolModeToggled((*reinterpret_cast< std::add_pointer_t<QAbstractButton*>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<bool>>(_a[2]))); break;
+        case 5: _t->on_btnShowCoordinates_clicked((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
+        case 6: _t->on_listProblems_itemClicked((*reinterpret_cast< std::add_pointer_t<QListWidgetItem*>>(_a[1]))); break;
+        case 7: _t->on_btnRandom_clicked(); break;
+        case 8: _t->on_btnCheck_clicked(); break;
+        case 9: _t->on_btnClose_clicked(); break;
         case 10: _t->on_btnAvatar_clicked(); break;
-        case 11: _t->on_btnToggleList_toggled((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
+        case 11: _t->on_btnLogout_clicked(); break;
         default: ;
         }
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         switch (_id) {
         default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
-        case 6:
+        case 4:
             switch (*reinterpret_cast<int*>(_a[1])) {
             default: *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType(); break;
             case 0:

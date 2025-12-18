@@ -349,6 +349,10 @@ release/moc_mainwindow.cpp: ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGraphicsScene \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qgraphicsscene.h \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/qpen.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QMessageBox \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qmessagebox.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialog.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QButtonGroup \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qbuttongroup.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGraphicsLineItem \
@@ -1100,6 +1104,10 @@ release/main.o: ../../main.cpp ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGraphicsScene \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qgraphicsscene.h \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/qpen.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QMessageBox \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qmessagebox.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialog.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QButtonGroup \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qbuttongroup.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGraphicsLineItem \
@@ -1174,7 +1182,6 @@ release/main.o: ../../main.cpp ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QMap \
 		../../logindialog.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QDialog \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialog.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QApplication \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qapplication.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\main.o ..\..\main.cpp
@@ -1382,6 +1389,10 @@ release/mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGraphicsScene \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qgraphicsscene.h \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/qpen.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QMessageBox \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qmessagebox.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialog.h \
+		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QButtonGroup \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qbuttongroup.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QGraphicsLineItem \
@@ -1457,12 +1468,8 @@ release/mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \
 		ui_mainwindow.h \
 		../../registerdialog.h \
 		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QDialog \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialog.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QRandomGenerator \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/qrandom.h \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/QMessageBox \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qmessagebox.h \
-		C:/Qt/6.9.2/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		C:/Qt/6.9.2/mingw_64/include/QtCore/QDebug \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/QIcon \
 		C:/Qt/6.9.2/mingw_64/include/QtGui/QMouseEvent \

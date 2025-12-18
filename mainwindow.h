@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
+#include <QMessageBox>
 #include <QButtonGroup>
 #include <QGraphicsLineItem>
 #include <QGraphicsView>
@@ -38,42 +39,36 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    // CAMBIO 1: El constructor ya no pide un "Problem", sino el "User"
     explicit MainWindow(User* currentUser, QWidget *parent = nullptr);
     ~MainWindow();
 
-protected:
-    // CAMBIO 2: Necesario para mantener el overlay centrado si cambias el tamaño de ventana
-    //void resizeEvent(QResizeEvent *event) override;
-
 private slots:
-    // Slots existentes...
+    // --- HERRAMIENTAS Y MAPA ---
     void on_btnZoomIn_clicked();
     void on_btnZoomOut_clicked();
-    void on_btnCheck_clicked();
-    void on_btnClose_clicked();
     void on_btnClearMap_clicked();
     void on_btnChangeColor_clicked();
     void onToolModeToggled(QAbstractButton *button, bool checked);
-    void setDrawLineMode(bool enabled);
+    void on_btnShowCoordinates_clicked(bool checked); // Asegúrate de tener este slot o borrarlo si no lo usas
 
-    // NUEVOS SLOTS (Traídos de SelectionWindow)
-    void on_listProblems_itemClicked(QListWidgetItem *item); // Al hacer clic en un problema
-    void on_btnRandom_clicked(); // Botón aleatorio
-    void on_btnAvatar_clicked(); // Para editar perfil (si tienes botón)
-    void on_btnToggleList_toggled(bool checked);
-    //void on_btn
+    // --- PANEL DE PROBLEMAS (STACKED WIDGET) ---
+    void on_listProblems_itemClicked(QListWidgetItem *item);
+    void on_btnRandom_clicked();
+    void on_btnCheck_clicked();
+    void on_btnClose_clicked(); // Botón "Volver a la lista"
+
+    // --- USUARIO ---
+    void on_btnAvatar_clicked();
+    void on_btnLogout_clicked();
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *m_scene;
     Problem m_currentProblem;
-    User* m_currentUser; // Guardamos el usuario
+    User* m_currentUser;
     QButtonGroup *m_answerGroup;
 
-    // Efecto de desenfoque
-    QGraphicsBlurEffect *m_blurEffect;
-
-    // Variables de herramientas (tus variables existentes)...
+    // --- HERRAMIENTAS DE DIBUJO ---
     DrawMode m_currentMode;
     QGraphicsPixmapItem *m_protractorItem = nullptr;
     QGraphicsPixmapItem *m_rulerItem = nullptr;
@@ -81,18 +76,18 @@ private:
     QPointF m_lineStart;
     QGraphicsLineItem *m_currentLineItem = nullptr;
 
-    // Funciones Auxiliares
+    // --- FUNCIONES AUXILIARES ---
     void loadChart();
-    void setupProblemUI(); // Actualiza la interfaz con el problema seleccionado
+    void setupProblemUI(int index);;      // Rellena los datos del problema en la UI
+    void initSelectionList();   // Inicializa la lista de problemas
 
-    // Funciones nuevas de inicialización
-    void initOverlayUI();  // Configura la lista y avatar
-    void toggleSelectionMode(bool enable); // Activa/Desactiva el modo selección (blur)
+    // Navegación del panel derecho
+    void showSelectionView();   // Muestra la página 0 (Lista)
+    void showProblemView();     // Muestra la página 1 (Problema)
+    void setDrawLineMode(bool enabled);
 
-    // Event filter...
+    // Eventos
     bool eventFilter(QObject *watched, QEvent *event) override;
-
-    // Herramientas visuales
     void setupToolIcons();
     void setupToolModes();
     void showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&item);

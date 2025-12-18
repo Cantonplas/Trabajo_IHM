@@ -23,38 +23,30 @@
 MainWindow::MainWindow(User* currentUser, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , m_currentUser(currentUser) // Guardamos usuario
+    , m_currentUser(currentUser)
     , m_currentMode(NONE)
-// ... inicializadores ...
 {
     ui->setupUi(this);
 
-    // 1. Configuración básica de Escena
+    // 1. Configurar Escena
     m_scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(m_scene);
     ui->graphicsView->viewport()->installEventFilter(this);
-    ui->listProblems->setVisible(false);
 
-    // 2. Configurar Grupos de Botones (igual que antes)
+    // 2. Configurar Grupos de Botones
     m_answerGroup = new QButtonGroup(this);
-    // ... añadir radio buttons ...
+    // (Los botones de respuesta se añaden dinámicamente luego)
+
+    // Configurar herramientas
     setupToolIcons();
     setupToolModes();
 
-    // 3. Cargar el mapa (se queda cargado al fondo)
+    // 3. Cargar el mapa
     loadChart();
 
-    m_blurEffect = new QGraphicsBlurEffect(this);
-    m_blurEffect->setBlurRadius(15); // Nivel de borrosidad (0 a 100)
-
-    // IMPORTANTE: Aplicar el efecto SOLO al contenedor del juego
-    ui->gameContentContainer->setGraphicsEffect(m_blurEffect);
-
-    // 5. Inicializar la UI del Overlay (Lista de problemas, avatar)
-    initOverlayUI();
-
-    // 6. Activar modo selección al inicio
-    toggleSelectionMode(true);
+    // 4. Inicializar panel derecho
+    initSelectionList();
+    showSelectionView(); // Empezar mostrando la lista
 }
 
 MainWindow::~MainWindow()
@@ -65,76 +57,48 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-/*
-// Mantiene el overlay centrado y del tamaño correcto
-void MainWindow::resizeEvent(QResizeEvent *event)
-{
-    QMainWindow::resizeEvent(event);
-    // Hacemos que el overlay ocupe todo el centro o lo centramos
-    if (ui->selectionOverlay->isVisible()) {
-        ui->selectionOverlay->resize(this->size());
-        ui->selectionOverlay->move(0, 0);
-    }
-}*/
 
-void MainWindow::initOverlayUI()
+void MainWindow::showSelectionView()
 {
-    // Cargar avatar
+    // Muestra la página 0 del StackedWidget (La lista de problemas)
+    ui->stackedWidgetProblem->setCurrentIndex(0);
+}
+
+void MainWindow::showProblemView()
+{
+    // Muestra la página 1 del StackedWidget (El detalle del problema)
+    ui->stackedWidgetProblem->setCurrentIndex(1);
+}
+
+void MainWindow::initSelectionList()
+{
+    // 1. Configurar Avatar
     if(m_currentUser){
         QPixmap pixmap = QPixmap::fromImage(m_currentUser->avatar());
         if (!pixmap.isNull()) {
             ui->btnAvatar->setIcon(QIcon(pixmap));
+            ui->btnAvatar->setIconSize(QSize(32, 32));
         }
     }
 
-    // Cargar problemas en la lista (UI element que moviste al overlay)
+    // 2. Configurar Lista (SIN ESTILOS CSS EXTRAÑOS)
+    ui->listProblems->clear();
+
+    // Comportamiento del texto
     ui->listProblems->setWordWrap(true);
     ui->listProblems->setTextElideMode(Qt::ElideNone);
-    ui->listProblems->setResizeMode(QListView::Adjust); // Ajustar al redimensionar
-    ui->listProblems->setSpacing(5);
+    ui->listProblems->setResizeMode(QListView::Adjust);
+    ui->listProblems->setSpacing(2); // Un espacio pequeño estándar
 
-    // Limpiar y cargar problemas
-    ui->listProblems->clear();
     const auto &problems = Navigation::instance().problems();
-
     for (int i = 0; i < problems.size(); ++i) {
-        QListWidgetItem *item = new QListWidgetItem(problems[i].text());
-
-        // Opcional: Dar un poco de altura extra si se ve muy apretado,
-        // aunque con WordWrap suele calcularlo solo, a veces ayuda poner un SizeHint mínimo
-        // item->setSizeHint(QSize(0, 50));
-
+        QString labelText = QString("%1. %2").arg(i + 1).arg(problems[i].text());
+        QListWidgetItem *item = new QListWidgetItem(labelText);
         item->setData(Qt::UserRole, i);
-
         ui->listProblems->addItem(item);
     }
-
-    ui->listProblems->setVisible(false);
-    ui->btnToggleList->setChecked(false);
-    ui->btnToggleList->setText("Ver lista de problemas ▼");
 }
 
-void MainWindow::on_btnToggleList_toggled(bool checked)
-{
-    ui->listProblems->setVisible(checked);
-    ui->btnToggleList->setText(checked ? "Ocultar lista ▲" : "Ver lista de problemas ▼");
-}
-
-void MainWindow::toggleSelectionMode(bool enable)
-{
-    if (enable) {
-        // MOSTRAR SELECCIÓN
-        ui->selectionOverlay->setVisible(true);
-        ui->selectionOverlay->raise(); // Traer al frente
-        m_blurEffect->setEnabled(true); // Activar borroso al fondo
-        ui->gameContentContainer->setEnabled(false); // Desactivar clicks en el mapa
-    } else {
-        // MOSTRAR JUEGO
-        ui->selectionOverlay->setVisible(false);
-        m_blurEffect->setEnabled(false); // Quitar borroso
-        ui->gameContentContainer->setEnabled(true); // Reactivar mapa
-    }
-}
 
 // SLOT: Cuando seleccionan un problema de la lista
 void MainWindow::on_listProblems_itemClicked(QListWidgetItem *item)
@@ -143,11 +107,9 @@ void MainWindow::on_listProblems_itemClicked(QListWidgetItem *item)
     const auto &problems = Navigation::instance().problems();
 
     if (index >= 0 && index < problems.size()) {
-        m_currentProblem = problems[index]; // Asignar problema actual
-        setupProblemUI(); // Cargar textos del problema en la UI del juego
-
-        // OCULTAR la selección y mostrar el juego
-        toggleSelectionMode(false);
+        m_currentProblem = problems[index];
+        setupProblemUI(index); // <--- AQUI: Pasamos el 'index'
+        showProblemView();
     }
 }
 
@@ -158,18 +120,21 @@ void MainWindow::on_btnRandom_clicked()
     if (!problems.isEmpty()) {
         int randomIndex = QRandomGenerator::global()->bounded(problems.size());
         m_currentProblem = problems[randomIndex];
-        setupProblemUI();
-        toggleSelectionMode(false);
+        setupProblemUI(randomIndex); // <--- AQUI: Pasamos el 'randomIndex'
+        showProblemView();
     }
+}
+
+void MainWindow::on_btnShowCoordinates_clicked(bool checked) {
+    // Tu lógica de coordenadas
 }
 
 // SLOT: Avatar (Opcional, si quieres editar perfil)
 void MainWindow::on_btnAvatar_clicked()
 {
-    // Reutilizas RegisterDialog
     RegisterDialog dialog(m_currentUser, this);
     if (dialog.exec() == QDialog::Accepted) {
-        // Recargar icono
+        // Actualizar el icono si cambió
         QPixmap pixmap = QPixmap::fromImage(m_currentUser->avatar());
         ui->btnAvatar->setIcon(QIcon(pixmap));
     }
@@ -196,12 +161,9 @@ void MainWindow::setupToolIcons()
 
 void MainWindow::setupToolModes()
 {
-    // m_toolGroup gestiona la exclusividad de los botones chequeables
     m_toolGroup = new QButtonGroup(this);
+    m_toolGroup->setExclusive(true); // Solo una herramienta activa a la vez
 
-    m_toolGroup->setExclusive(true);
-
-    // Añadir todos los botones chequeables al grupo
     m_toolGroup->addButton(ui->btnPunto);
     m_toolGroup->addButton(ui->btnDrawLine);
     m_toolGroup->addButton(ui->btnDrawArc);
@@ -209,13 +171,10 @@ void MainWindow::setupToolModes()
     m_toolGroup->addButton(ui->btnProtractor);
     m_toolGroup->addButton(ui->btnRulerDistance);
     m_toolGroup->addButton(ui->btnEraser);
-    m_toolGroup->addButton(ui->btnShowCoordinates);
+    m_toolGroup->addButton(ui->btnShowCoordinates); // Si es checkable
 
-    // Conectar la señal de toggle a la slot genérica (Corrección de sobrecarga aplicada)
-    connect(m_toolGroup,
-            QOverload<QAbstractButton *, bool>::of(&QButtonGroup::buttonToggled),
-            this,
-            &MainWindow::onToolModeToggled);
+    // Conectar la señal de cambio de herramienta
+    connect(m_toolGroup, &QButtonGroup::buttonToggled, this, &MainWindow::onToolModeToggled);
 }
 
 // mainwindow.cpp (Modificación dentro de showSvgTool)
@@ -360,104 +319,72 @@ void MainWindow::on_btnChangeColor_clicked()
 
 void MainWindow::loadChart()
 {
-    QPixmap chart(":/resources/carta_nautica.jpg");
-
-    if (chart.isNull()) {
-        m_scene->addText("Error: No se pudo cargar la imagen de la carta náutica.\nVerifica resources.qrc");
-    } else {
-        m_scene->addPixmap(chart);
-        m_scene->setSceneRect(chart.rect());
-
-        ui->graphicsView->fitInView(m_scene->itemsBoundingRect(), Qt::KeepAspectRatio);
-
-        double zoomFactor = 50;
-        ui->graphicsView->scale(zoomFactor, zoomFactor);
-
-        ui->graphicsView->centerOn(m_scene->itemsBoundingRect().center());
+    QPixmap pixmap(":/resources/carta_nautica.jpg");
+    if (pixmap.isNull()) {
+        qDebug() << "Error: No se pudo cargar la imagen del mapa.";
+        return;
     }
+    m_scene->addPixmap(pixmap);
+    m_scene->setSceneRect(pixmap.rect());
 }
 
-void MainWindow::setupProblemUI()
+void MainWindow::setupProblemUI(int index)
 {
-    // 1. Poner el texto del problema
-    ui->labelProblemText->setText(m_currentProblem.text());
+    // ELIMINAMOS ESTA LÍNEA QUE DABA EL ERROR:
+    // int index = Navigation::instance().problems().indexOf(m_currentProblem);
 
-    // 2. Obtener las respuestas
+    // Usamos directamente el 'index' que nos pasan
+    ui->labelTitle->setText(QString("Problema #%1").arg(index + 1));
+
+    // ... (El resto de la función se queda IGUAL) ...
+    ui->textProblemDescription->setText(m_currentProblem.text());
+
     QVector<Answer> answers = m_currentProblem.answers();
 
-    // 3. Limpiar el grupo de botones anterior para evitar conflictos
+    // Limpiar grupo previo
     QList<QAbstractButton*> buttons = m_answerGroup->buttons();
     for(QAbstractButton* button : buttons) {
         m_answerGroup->removeButton(button);
     }
 
-    // 4. Asignar texto y AÑADIR AL GRUPO CON ID (0, 1, 2, 3)
-    if (answers.size() > 0) {
-        ui->radioAns1->setText(answers[0].text());
-        ui->radioAns1->setVisible(true);
-        m_answerGroup->addButton(ui->radioAns1, 0); // ID 0
-    } else ui->radioAns1->setVisible(false);
+    auto setupRadio = [&](QRadioButton* r, int i) {
+        if (i < answers.size()) {
+            r->setText(answers[i].text());
+            r->setVisible(true);
+            m_answerGroup->addButton(r, i);
+        } else {
+            r->setVisible(false);
+        }
+    };
 
-    if (answers.size() > 1) {
-        ui->radioAns2->setText(answers[1].text());
-        ui->radioAns2->setVisible(true);
-        m_answerGroup->addButton(ui->radioAns2, 1); // ID 1
-    } else ui->radioAns2->setVisible(false);
+    setupRadio(ui->radioAns1, 0);
+    setupRadio(ui->radioAns2, 1);
+    setupRadio(ui->radioAns3, 2);
+    setupRadio(ui->radioAns4, 3);
 
-    if (answers.size() > 2) {
-        ui->radioAns3->setText(answers[2].text());
-        ui->radioAns3->setVisible(true);
-        m_answerGroup->addButton(ui->radioAns3, 2); // ID 2
-    } else ui->radioAns3->setVisible(false);
-
-    if (answers.size() > 3) {
-        ui->radioAns4->setText(answers[3].text());
-        ui->radioAns4->setVisible(true);
-        m_answerGroup->addButton(ui->radioAns4, 3); // ID 3
-    } else ui->radioAns4->setVisible(false);
-
-    // 5. Reiniciar selección (ninguno marcado)
-    // El truco es poner setExclusive(false), desmarcar, y volver a true.
     m_answerGroup->setExclusive(false);
-    if(m_answerGroup->checkedButton()) {
+    if(m_answerGroup->checkedButton())
         m_answerGroup->checkedButton()->setChecked(false);
-    }
     m_answerGroup->setExclusive(true);
 }
 
-#include <QMessageBox> // Asegúrate de tener este include arriba
-
 void MainWindow::on_btnCheck_clicked()
 {
-    // 1. Verificar si hay algo seleccionado
-    if(m_answerGroup->checkedId() == -1) {
+    // Verificar si hay selección
+    int id = m_answerGroup->checkedId();
+    if(id == -1) {
         QMessageBox::warning(this, "Aviso", "Por favor selecciona una respuesta.");
         return;
     }
 
-    // 2. Obtener el índice seleccionado (0, 1, 2 o 3)
-    int selectedIndex = m_answerGroup->checkedId();
-
-    // 3. Comprobar si es correcto usando los datos del problema
-    // Asumimos que tu clase Answer tiene un método 'isCorrect()' o 'correct()'
-    // Verifica en navtypes.h cómo se llama. Suele ser .valid o .correct
-
+    // Verificar si es correcta
     QVector<Answer> answers = m_currentProblem.answers();
-    bool isCorrect = false;
-
-    // Protección por si el índice se sale del rango
-    if(selectedIndex >= 0 && selectedIndex < answers.size()){
-        // Aquí depende de tu clase Answer.
-        // Si tu clase Answer tiene un booleano público 'valid':
-        isCorrect = answers[selectedIndex].validity();
-
-        // O SI ES UNA FUNCIÓN, usa: answers[selectedIndex].isValid() o similar.
-    }
-
-    if(isCorrect) {
-        QMessageBox::information(this, "¡Correcto!", "¡Has acertado la respuesta!");
-    } else {
-        QMessageBox::critical(this, "Incorrecto", "Esa no es la respuesta correcta.");
+    if (id >= 0 && id < answers.size()) {
+        if(answers[id].validity()) {
+            QMessageBox::information(this, "¡Correcto!", "¡Has acertado la respuesta!");
+        } else {
+            QMessageBox::critical(this, "Incorrecto", "Esa no es la respuesta correcta.");
+        }
     }
 }
 
@@ -473,9 +400,13 @@ void MainWindow::on_btnZoomOut_clicked()
 
 void MainWindow::on_btnClose_clicked()
 {
-    toggleSelectionMode(true);
+    showSelectionView();
 }
 
+void MainWindow::on_btnLogout_clicked()
+{
+    this->close(); // Cierra la ventana principal
+}
 // =========================================================================
 // CÓDIGO AÑADIDO: Lógica de Dibujo de Líneas (Basado en el profesor)
 // =========================================================================

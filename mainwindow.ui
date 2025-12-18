@@ -6,15 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>800</height>
+    <width>1200</width>
+    <height>850</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Resolución de Problema</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout_Main">
+   <layout class="QVBoxLayout" name="verticalLayoutMain">
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -27,727 +30,464 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <property name="spacing">
-     <number>0</number>
-    </property>
-    
-    <item row="0" column="0">
-     <widget class="QWidget" name="gameContentContainer" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+
+    <item>
+     <widget class="QFrame" name="frameTopBar">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayoutTop">
+       <property name="leftMargin">
+        <number>15</number>
+       </property>
+       <property name="topMargin">
+        <number>5</number>
+       </property>
+       <property name="rightMargin">
+        <number>15</number>
+       </property>
+       <property name="bottomMargin">
+        <number>5</number>
+       </property>
+       
        <item>
-        <widget class="QFrame" name="frameTools">
-         <property name="minimumSize">
-          <size>
-           <width>80</width>
-           <height>0</height>
-          </size>
+        <widget class="QLabel" name="labelAppName">
+         <property name="font">
+          <font>
+           <family>Segoe UI</family>
+           <pointsize>12</pointsize>
+           <bold>true</bold>
+          </font>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>80</width>
-           <height>16777215</height>
-          </size>
+         <property name="text">
+          <string>Navegación Náutica</string>
          </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayoutTools">
-          <property name="spacing">
-           <number>5</number>
-          </property>
-          <property name="leftMargin">
-           <number>5</number>
-          </property>
-          <property name="topMargin">
-           <number>5</number>
-          </property>
-          <property name="rightMargin">
-           <number>5</number>
-          </property>
-          <property name="bottomMargin">
-           <number>5</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="labelDrawTitle">
-            <property name="text">
-             <string>Dibujo</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnPunto">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Marcar un punto</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/resources/icons/punto.svg</normaloff>:/resources/icons/punto.svg</iconset>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnDrawLine">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Trazar línea</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/resources/icons/Linea_icon.svg</normaloff>:/resources/icons/Linea_icon.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnDrawArc">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Compás</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/resources/icons/compas_icon.svg</normaloff>:/resources/icons/compas_icon.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnAnnotateText">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Texto</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/resources/icons/T.svg</normaloff>:/resources/icons/T.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="line_1">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="labelMeasureTitle">
-            <property name="text">
-             <string>Medición</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnProtractor">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Transportador</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/resources/icons/transportador.svg</normaloff>:/resources/icons/transportador.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnRulerDistance">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Regla</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/resources/icons/ruler_icon.svg</normaloff>:/resources/icons/ruler_icon.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="line_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnChangeColor">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Color</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/resources/icons/colores.svg</normaloff>:/resources/icons/colores.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnEraser">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Borrador</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/resources/icons/eraser.svg</normaloff>:/resources/icons/eraser.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnClearMap">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Limpiar todo</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/resources/icons/ocultar.svg</normaloff>:/resources/icons/ocultar.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnShowCoordinates">
-            <property name="minimumSize">
-             <size>
-              <width>60</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Coordenadas</string>
-            </property>
-            <property name="icon">
-             <iconset resource="resources.qrc">
-              <normaloff>:/resources/icons/coordenadas.svg</normaloff>:/resources/icons/coordenadas.svg</iconset>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacerTools">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
         </widget>
        </item>
-       
        <item>
-        <layout class="QVBoxLayout" name="layoutMap">
-         <item>
-          <layout class="QHBoxLayout" name="layoutZoom">
-           <item>
-            <widget class="QLabel" name="lblZoomIcon">
-             <property name="maximumSize">
-              <size>
-               <width>30</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="pixmap">
-              <pixmap>:/lupa.jpg</pixmap>
-             </property>
-             <property name="scaledContents">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnZoomIn">
-             <property name="text">
-              <string>+</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnZoomOut">
-             <property name="text">
-              <string>-</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QGraphicsView" name="graphicsView">
-           <property name="dragMode">
-            <enum>QGraphicsView::ScrollHandDrag</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <spacer name="horizontalSpacerTop">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
-       
        <item>
-        <widget class="QFrame" name="frameProblem">
+        <widget class="QPushButton" name="btnAvatar">
          <property name="minimumSize">
           <size>
-           <width>300</width>
-           <height>0</height>
+           <width>40</width>
+           <height>40</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>300</width>
-           <height>16777215</height>
+           <width>40</width>
+           <height>40</height>
           </size>
          </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+         <property name="text">
+          <string/>
          </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
+         <property name="iconSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayoutProblem">
-          <item>
-           <widget class="QLabel" name="labelTitle">
-            <property name="font">
-             <font>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Problema:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="labelProblemText">
-            <property name="text">
-             <string>Texto del problema aquí...</string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="lineProblem">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioAns1">
-            <property name="text">
-             <string>Opción A</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioAns2">
-            <property name="text">
-             <string>Opción B</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioAns3">
-            <property name="text">
-             <string>Opción C</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioAns4">
-            <property name="text">
-             <string>Opción D</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacerProblem">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnCheck">
-            <property name="text">
-             <string>Comprobar Respuesta</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnClose">
-            <property name="text">
-             <string>Volver a Selección</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>
      </widget>
     </item>
 
-    <item row="0" column="0">
-     <widget class="QWidget" name="selectionOverlay" native="true">
-      <property name="styleSheet">
-       <string>
-#selectionOverlay {
-    background-color: rgba(20, 30, 40, 220); 
-}
-#selectionOverlay QLabel, #selectionOverlay QCheckBox {
-    color: #ffffff;
-    font-weight: bold;
-    font-size: 14px;
-}
-#selectionOverlay QListWidget {
-    background-color: #f0f0f0;
-    color: #000000;
-    border: 2px solid #5da4d6;
-    border-radius: 6px;
-    font-size: 13px;
-}
-#selectionOverlay QPushButton {
-    background-color: #3498db; 
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 8px;
-    font-weight: bold;
-    font-size: 14px;
-}
-#selectionOverlay QPushButton:hover {
-    background-color: #5dade2;
-}
-#selectionOverlay QPushButton:pressed {
-    background-color: #2980b9;
-}
-#selectionOverlay #btnAvatar {
-    background-color: transparent;
-    border: 2px solid white;
-    border-radius: 40px; 
-}
-       </string>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayoutGame">
+      <property name="spacing">
+       <number>0</number>
       </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayoutOverlay">
-       <property name="leftMargin">
-        <number>60</number>
-       </property>
-       <property name="rightMargin">
-        <number>20</number>
-       </property>
-       
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayoutTopBar">
+      
+      <item>
+       <widget class="QFrame" name="frameTools">
+        <property name="minimumSize">
+         <size>
+          <width>70</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>70</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayoutTools">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>5</number>
+         </property>
+         <property name="topMargin">
+          <number>10</number>
+         </property>
+         <property name="rightMargin">
+          <number>5</number>
+         </property>
+         <property name="bottomMargin">
+          <number>10</number>
+         </property>
+         
          <item>
-          <spacer name="horizontalSpacerTop">
+           <widget class="QPushButton" name="btnPunto">
+            <property name="minimumSize"><size><width>50</width><height>50</height></size></property>
+            <property name="toolTip"><string>Punto</string></property>
+            <property name="icon"><iconset resource="resources.qrc"><normaloff>:/resources/icons/punto.svg</normaloff>:/resources/icons/punto.svg</iconset></property>
+            <property name="checkable"><bool>true</bool></property>
+           </widget>
+         </item>
+         <item>
+           <widget class="QPushButton" name="btnDrawLine">
+            <property name="minimumSize"><size><width>50</width><height>50</height></size></property>
+            <property name="toolTip"><string>Línea</string></property>
+            <property name="icon"><iconset resource="resources.qrc"><normaloff>:/resources/icons/Linea_icon.svg</normaloff>:/resources/icons/Linea_icon.svg</iconset></property>
+            <property name="checkable"><bool>true</bool></property>
+           </widget>
+         </item>
+         <item>
+           <widget class="QPushButton" name="btnDrawArc">
+            <property name="minimumSize"><size><width>50</width><height>50</height></size></property>
+            <property name="toolTip"><string>Compás</string></property>
+            <property name="icon"><iconset resource="resources.qrc"><normaloff>:/resources/icons/compas_icon.svg</normaloff>:/resources/icons/compas_icon.svg</iconset></property>
+            <property name="checkable"><bool>true</bool></property>
+           </widget>
+         </item>
+         <item>
+           <widget class="QPushButton" name="btnAnnotateText">
+            <property name="minimumSize"><size><width>50</width><height>50</height></size></property>
+            <property name="toolTip"><string>Texto</string></property>
+            <property name="icon"><iconset resource="resources.qrc"><normaloff>:/resources/icons/T.svg</normaloff>:/resources/icons/T.svg</iconset></property>
+            <property name="checkable"><bool>true</bool></property>
+           </widget>
+         </item>
+         <item>
+           <widget class="QPushButton" name="btnProtractor">
+            <property name="minimumSize"><size><width>50</width><height>50</height></size></property>
+            <property name="toolTip"><string>Transportador</string></property>
+            <property name="icon"><iconset resource="resources.qrc"><normaloff>:/resources/icons/transportador.svg</normaloff>:/resources/icons/transportador.svg</iconset></property>
+            <property name="checkable"><bool>true</bool></property>
+           </widget>
+         </item>
+         <item>
+           <widget class="QPushButton" name="btnRulerDistance">
+            <property name="minimumSize"><size><width>50</width><height>50</height></size></property>
+            <property name="toolTip"><string>Regla</string></property>
+            <property name="icon"><iconset resource="resources.qrc"><normaloff>:/resources/icons/ruler_icon.svg</normaloff>:/resources/icons/ruler_icon.svg</iconset></property>
+            <property name="checkable"><bool>true</bool></property>
+           </widget>
+         </item>
+         <item>
+           <widget class="QPushButton" name="btnChangeColor">
+            <property name="minimumSize"><size><width>50</width><height>50</height></size></property>
+            <property name="toolTip"><string>Cambiar Color</string></property>
+            <property name="icon"><iconset resource="resources.qrc"><normaloff>:/resources/icons/colores.svg</normaloff>:/resources/icons/colores.svg</iconset></property>
+           </widget>
+         </item>
+         <item>
+           <widget class="QPushButton" name="btnEraser">
+            <property name="minimumSize"><size><width>50</width><height>50</height></size></property>
+            <property name="toolTip"><string>Borrador</string></property>
+            <property name="icon"><iconset resource="resources.qrc"><normaloff>:/resources/icons/eraser.svg</normaloff>:/resources/icons/eraser.svg</iconset></property>
+            <property name="checkable"><bool>true</bool></property>
+           </widget>
+         </item>
+         <item>
+           <widget class="QPushButton" name="btnClearMap">
+            <property name="minimumSize"><size><width>50</width><height>50</height></size></property>
+            <property name="toolTip"><string>Limpiar Todo</string></property>
+            <property name="icon"><iconset resource="resources.qrc"><normaloff>:/resources/icons/ocultar.svg</normaloff>:/resources/icons/ocultar.svg</iconset></property>
+           </widget>
+         </item>
+         <item>
+           <widget class="QPushButton" name="btnShowCoordinates">
+            <property name="minimumSize"><size><width>50</width><height>50</height></size></property>
+            <property name="toolTip"><string>Ver Coordenadas</string></property>
+            <property name="icon"><iconset resource="resources.qrc"><normaloff>:/resources/icons/coordenadas.svg</normaloff>:/resources/icons/coordenadas.svg</iconset></property>
+            <property name="checkable"><bool>true</bool></property>
+           </widget>
+         </item>
+
+         <item>
+          <spacer name="verticalSpacerTools">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
-             <height>20</height>
+             <width>20</width>
+             <height>40</height>
             </size>
            </property>
           </spacer>
          </item>
+        </layout>
+       </widget>
+      </item>
+      
+      <item>
+       <layout class="QVBoxLayout" name="layoutMap">
+        <item>
+         <widget class="QGraphicsView" name="graphicsView">
+          <property name="dragMode">
+           <enum>QGraphicsView::ScrollHandDrag</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      
+      <item>
+       <widget class="QFrame" name="frameRightPanel">
+        <property name="minimumSize">
+         <size>
+          <width>320</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>350</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayoutRight">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>10</number>
+         </property>
+
          <item>
-          <layout class="QVBoxLayout" name="verticalLayoutUser">
-           <item>
-            <widget class="QPushButton" name="btnAvatar">
-             <property name="minimumSize">
-              <size>
-               <width>80</width>
-               <height>80</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>80</width>
-               <height>80</height>
-              </size>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>60</width>
-               <height>60</height>
-              </size>
-             </property>
-             <property name="flat">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
+          <widget class="QStackedWidget" name="stackedWidgetProblem">
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           
+           <widget class="QWidget" name="pageSelection">
+            <layout class="QVBoxLayout" name="verticalLayoutSelection">
+             <property name="leftMargin"><number>10</number></property>
+             <property name="topMargin"><number>10</number></property>
+             <property name="rightMargin"><number>10</number></property>
+             <property name="bottomMargin"><number>10</number></property>
+             <property name="spacing"><number>10</number></property>
+             
+             <item>
+              <widget class="QLabel" name="labelSelectTitle">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Selecciona un Problema</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnRandom">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>¡Problema Aleatorio!</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QListWidget" name="listProblems"/>
+             </item>
+            </layout>
+           </widget>
+
+           <widget class="QWidget" name="pageProblem">
+            <layout class="QVBoxLayout" name="verticalLayoutProblem">
+             <property name="leftMargin"><number>10</number></property>
+             <property name="topMargin"><number>10</number></property>
+             <property name="rightMargin"><number>10</number></property>
+             <property name="bottomMargin"><number>10</number></property>
+             <property name="spacing"><number>10</number></property>
+
+             <item>
+              <widget class="QLabel" name="labelTitle">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Problema:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QTextBrowser" name="textProblemDescription">
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="styleSheet">
+                <string>background: transparent;</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="Line" name="lineProblem">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioAns1">
+               <property name="text">
+                <string>Opción A</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioAns2">
+               <property name="text">
+                <string>Opción B</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioAns3">
+               <property name="text">
+                <string>Opción C</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioAns4">
+               <property name="text">
+                <string>Opción D</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacerProblem">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnCheck">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>35</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Comprobar Respuesta</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnClose">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Volver a la lista</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+
+         <item>
+          <layout class="QHBoxLayout" name="layoutLogout">
+           <property name="leftMargin"><number>10</number></property>
+           <property name="rightMargin"><number>10</number></property>
            <item>
             <widget class="QPushButton" name="btnLogout">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>35</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string>background-color: #d9534f; color: white; border-radius: 4px;</string>
+             </property>
              <property name="text">
-              <string>Cerrar sesión</string>
+              <string>Cerrar Sesión</string>
              </property>
             </widget>
            </item>
           </layout>
          </item>
         </layout>
-       </item>
-
-       <item>
-        <spacer name="verticalSpacerTop2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>100</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-
-       <item alignment="Qt::AlignLeft">
-        <widget class="QPushButton" name="btnRandom">
-         <property name="minimumSize">
-          <size>
-           <width>480</width>
-           <height>50</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>12</pointsize>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>¡Problema aleatorio!</string>
-         </property>
-        </widget>
-       </item>
-       <item alignment="Qt::AlignLeft">
-        <widget class="QPushButton" name="btnToggleList">
-         <property name="minimumSize">
-          <size>
-           <width>480</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Ver lista de problemas ▼</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item alignment="Qt::AlignLeft">
-        <widget class="QListWidget" name="listProblems">
-         <property name="minimumSize">
-          <size>
-           <width>480</width>
-           <height>300</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>700</width>
-           <height>16777215</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-
-       <item>
-        <spacer name="verticalSpacerBottom">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -756,7 +496,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
+     <width>1200</width>
      <height>26</height>
     </rect>
    </property>

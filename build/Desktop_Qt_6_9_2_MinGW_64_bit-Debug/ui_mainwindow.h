@@ -14,7 +14,6 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGraphicsView>
-#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QListWidget>
@@ -23,7 +22,9 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -33,37 +34,40 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralwidget;
-    QGridLayout *gridLayout_Main;
-    QWidget *gameContentContainer;
-    QHBoxLayout *horizontalLayout;
+    QVBoxLayout *verticalLayoutMain;
+    QFrame *frameTopBar;
+    QHBoxLayout *horizontalLayoutTop;
+    QLabel *labelAppName;
+    QSpacerItem *horizontalSpacerTop;
+    QPushButton *btnAvatar;
+    QHBoxLayout *horizontalLayoutGame;
     QFrame *frameTools;
     QVBoxLayout *verticalLayoutTools;
-    QLabel *labelDrawTitle;
     QPushButton *btnPunto;
     QPushButton *btnDrawLine;
     QPushButton *btnDrawArc;
     QPushButton *btnAnnotateText;
-    QFrame *line_1;
-    QLabel *labelMeasureTitle;
     QPushButton *btnProtractor;
     QPushButton *btnRulerDistance;
-    QFrame *line_2;
     QPushButton *btnChangeColor;
     QPushButton *btnEraser;
     QPushButton *btnClearMap;
     QPushButton *btnShowCoordinates;
     QSpacerItem *verticalSpacerTools;
     QVBoxLayout *layoutMap;
-    QHBoxLayout *layoutZoom;
-    QLabel *lblZoomIcon;
-    QPushButton *btnZoomIn;
-    QPushButton *btnZoomOut;
-    QSpacerItem *horizontalSpacer;
     QGraphicsView *graphicsView;
-    QFrame *frameProblem;
+    QFrame *frameRightPanel;
+    QVBoxLayout *verticalLayoutRight;
+    QStackedWidget *stackedWidgetProblem;
+    QWidget *pageSelection;
+    QVBoxLayout *verticalLayoutSelection;
+    QLabel *labelSelectTitle;
+    QPushButton *btnRandom;
+    QListWidget *listProblems;
+    QWidget *pageProblem;
     QVBoxLayout *verticalLayoutProblem;
     QLabel *labelTitle;
-    QLabel *labelProblemText;
+    QTextBrowser *textProblemDescription;
     QFrame *lineProblem;
     QRadioButton *radioAns1;
     QRadioButton *radioAns2;
@@ -72,18 +76,8 @@ public:
     QSpacerItem *verticalSpacerProblem;
     QPushButton *btnCheck;
     QPushButton *btnClose;
-    QWidget *selectionOverlay;
-    QVBoxLayout *verticalLayoutOverlay;
-    QHBoxLayout *horizontalLayoutTopBar;
-    QSpacerItem *horizontalSpacerTop;
-    QVBoxLayout *verticalLayoutUser;
-    QPushButton *btnAvatar;
+    QHBoxLayout *layoutLogout;
     QPushButton *btnLogout;
-    QSpacerItem *verticalSpacerTop2;
-    QPushButton *btnRandom;
-    QPushButton *btnToggleList;
-    QListWidget *listProblems;
-    QSpacerItem *verticalSpacerBottom;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -91,41 +85,63 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(1024, 800);
+        MainWindow->resize(1200, 850);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
-        gridLayout_Main = new QGridLayout(centralwidget);
-        gridLayout_Main->setSpacing(0);
-        gridLayout_Main->setObjectName("gridLayout_Main");
-        gridLayout_Main->setContentsMargins(0, 0, 0, 0);
-        gameContentContainer = new QWidget(centralwidget);
-        gameContentContainer->setObjectName("gameContentContainer");
-        QSizePolicy sizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(gameContentContainer->sizePolicy().hasHeightForWidth());
-        gameContentContainer->setSizePolicy(sizePolicy);
-        horizontalLayout = new QHBoxLayout(gameContentContainer);
-        horizontalLayout->setObjectName("horizontalLayout");
-        frameTools = new QFrame(gameContentContainer);
+        verticalLayoutMain = new QVBoxLayout(centralwidget);
+        verticalLayoutMain->setSpacing(0);
+        verticalLayoutMain->setObjectName("verticalLayoutMain");
+        verticalLayoutMain->setContentsMargins(0, 0, 0, 0);
+        frameTopBar = new QFrame(centralwidget);
+        frameTopBar->setObjectName("frameTopBar");
+        frameTopBar->setMinimumSize(QSize(0, 50));
+        frameTopBar->setFrameShape(QFrame::StyledPanel);
+        frameTopBar->setFrameShadow(QFrame::Raised);
+        horizontalLayoutTop = new QHBoxLayout(frameTopBar);
+        horizontalLayoutTop->setObjectName("horizontalLayoutTop");
+        horizontalLayoutTop->setContentsMargins(15, 5, 15, 5);
+        labelAppName = new QLabel(frameTopBar);
+        labelAppName->setObjectName("labelAppName");
+        QFont font;
+        font.setFamilies({QString::fromUtf8("Segoe UI")});
+        font.setPointSize(12);
+        font.setBold(true);
+        labelAppName->setFont(font);
+
+        horizontalLayoutTop->addWidget(labelAppName);
+
+        horizontalSpacerTop = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+
+        horizontalLayoutTop->addItem(horizontalSpacerTop);
+
+        btnAvatar = new QPushButton(frameTopBar);
+        btnAvatar->setObjectName("btnAvatar");
+        btnAvatar->setMinimumSize(QSize(40, 40));
+        btnAvatar->setMaximumSize(QSize(40, 40));
+        btnAvatar->setIconSize(QSize(32, 32));
+        btnAvatar->setFlat(true);
+
+        horizontalLayoutTop->addWidget(btnAvatar);
+
+
+        verticalLayoutMain->addWidget(frameTopBar);
+
+        horizontalLayoutGame = new QHBoxLayout();
+        horizontalLayoutGame->setSpacing(0);
+        horizontalLayoutGame->setObjectName("horizontalLayoutGame");
+        frameTools = new QFrame(centralwidget);
         frameTools->setObjectName("frameTools");
-        frameTools->setMinimumSize(QSize(80, 0));
-        frameTools->setMaximumSize(QSize(80, 16777215));
+        frameTools->setMinimumSize(QSize(70, 0));
+        frameTools->setMaximumSize(QSize(70, 16777215));
         frameTools->setFrameShape(QFrame::StyledPanel);
         frameTools->setFrameShadow(QFrame::Raised);
         verticalLayoutTools = new QVBoxLayout(frameTools);
-        verticalLayoutTools->setSpacing(5);
+        verticalLayoutTools->setSpacing(6);
         verticalLayoutTools->setObjectName("verticalLayoutTools");
-        verticalLayoutTools->setContentsMargins(5, 5, 5, 5);
-        labelDrawTitle = new QLabel(frameTools);
-        labelDrawTitle->setObjectName("labelDrawTitle");
-        labelDrawTitle->setAlignment(Qt::AlignCenter);
-
-        verticalLayoutTools->addWidget(labelDrawTitle);
-
+        verticalLayoutTools->setContentsMargins(5, 10, 5, 10);
         btnPunto = new QPushButton(frameTools);
         btnPunto->setObjectName("btnPunto");
-        btnPunto->setMinimumSize(QSize(60, 60));
+        btnPunto->setMinimumSize(QSize(50, 50));
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/resources/icons/punto.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         btnPunto->setIcon(icon);
@@ -135,117 +151,88 @@ public:
 
         btnDrawLine = new QPushButton(frameTools);
         btnDrawLine->setObjectName("btnDrawLine");
-        btnDrawLine->setMinimumSize(QSize(60, 60));
+        btnDrawLine->setMinimumSize(QSize(50, 50));
         QIcon icon1;
         icon1.addFile(QString::fromUtf8(":/resources/icons/Linea_icon.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         btnDrawLine->setIcon(icon1);
-        btnDrawLine->setIconSize(QSize(40, 40));
         btnDrawLine->setCheckable(true);
 
         verticalLayoutTools->addWidget(btnDrawLine);
 
         btnDrawArc = new QPushButton(frameTools);
         btnDrawArc->setObjectName("btnDrawArc");
-        btnDrawArc->setMinimumSize(QSize(60, 60));
+        btnDrawArc->setMinimumSize(QSize(50, 50));
         QIcon icon2;
         icon2.addFile(QString::fromUtf8(":/resources/icons/compas_icon.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         btnDrawArc->setIcon(icon2);
-        btnDrawArc->setIconSize(QSize(40, 40));
         btnDrawArc->setCheckable(true);
 
         verticalLayoutTools->addWidget(btnDrawArc);
 
         btnAnnotateText = new QPushButton(frameTools);
         btnAnnotateText->setObjectName("btnAnnotateText");
-        btnAnnotateText->setMinimumSize(QSize(60, 60));
+        btnAnnotateText->setMinimumSize(QSize(50, 50));
         QIcon icon3;
         icon3.addFile(QString::fromUtf8(":/resources/icons/T.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         btnAnnotateText->setIcon(icon3);
-        btnAnnotateText->setIconSize(QSize(40, 40));
         btnAnnotateText->setCheckable(true);
 
         verticalLayoutTools->addWidget(btnAnnotateText);
 
-        line_1 = new QFrame(frameTools);
-        line_1->setObjectName("line_1");
-        line_1->setFrameShape(QFrame::Shape::HLine);
-        line_1->setFrameShadow(QFrame::Shadow::Sunken);
-
-        verticalLayoutTools->addWidget(line_1);
-
-        labelMeasureTitle = new QLabel(frameTools);
-        labelMeasureTitle->setObjectName("labelMeasureTitle");
-        labelMeasureTitle->setAlignment(Qt::AlignCenter);
-
-        verticalLayoutTools->addWidget(labelMeasureTitle);
-
         btnProtractor = new QPushButton(frameTools);
         btnProtractor->setObjectName("btnProtractor");
-        btnProtractor->setMinimumSize(QSize(60, 60));
+        btnProtractor->setMinimumSize(QSize(50, 50));
         QIcon icon4;
         icon4.addFile(QString::fromUtf8(":/resources/icons/transportador.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         btnProtractor->setIcon(icon4);
-        btnProtractor->setIconSize(QSize(40, 40));
         btnProtractor->setCheckable(true);
 
         verticalLayoutTools->addWidget(btnProtractor);
 
         btnRulerDistance = new QPushButton(frameTools);
         btnRulerDistance->setObjectName("btnRulerDistance");
-        btnRulerDistance->setMinimumSize(QSize(60, 60));
+        btnRulerDistance->setMinimumSize(QSize(50, 50));
         QIcon icon5;
         icon5.addFile(QString::fromUtf8(":/resources/icons/ruler_icon.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         btnRulerDistance->setIcon(icon5);
-        btnRulerDistance->setIconSize(QSize(40, 40));
         btnRulerDistance->setCheckable(true);
 
         verticalLayoutTools->addWidget(btnRulerDistance);
 
-        line_2 = new QFrame(frameTools);
-        line_2->setObjectName("line_2");
-        line_2->setFrameShape(QFrame::Shape::HLine);
-        line_2->setFrameShadow(QFrame::Shadow::Sunken);
-
-        verticalLayoutTools->addWidget(line_2);
-
         btnChangeColor = new QPushButton(frameTools);
         btnChangeColor->setObjectName("btnChangeColor");
-        btnChangeColor->setMinimumSize(QSize(60, 60));
+        btnChangeColor->setMinimumSize(QSize(50, 50));
         QIcon icon6;
         icon6.addFile(QString::fromUtf8(":/resources/icons/colores.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         btnChangeColor->setIcon(icon6);
-        btnChangeColor->setIconSize(QSize(40, 40));
 
         verticalLayoutTools->addWidget(btnChangeColor);
 
         btnEraser = new QPushButton(frameTools);
         btnEraser->setObjectName("btnEraser");
-        btnEraser->setMinimumSize(QSize(60, 60));
+        btnEraser->setMinimumSize(QSize(50, 50));
         QIcon icon7;
         icon7.addFile(QString::fromUtf8(":/resources/icons/eraser.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         btnEraser->setIcon(icon7);
-        btnEraser->setIconSize(QSize(40, 40));
         btnEraser->setCheckable(true);
 
         verticalLayoutTools->addWidget(btnEraser);
 
         btnClearMap = new QPushButton(frameTools);
         btnClearMap->setObjectName("btnClearMap");
-        btnClearMap->setMinimumSize(QSize(60, 60));
+        btnClearMap->setMinimumSize(QSize(50, 50));
         QIcon icon8;
         icon8.addFile(QString::fromUtf8(":/resources/icons/ocultar.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         btnClearMap->setIcon(icon8);
-        btnClearMap->setIconSize(QSize(40, 40));
 
         verticalLayoutTools->addWidget(btnClearMap);
 
         btnShowCoordinates = new QPushButton(frameTools);
         btnShowCoordinates->setObjectName("btnShowCoordinates");
-        btnShowCoordinates->setMinimumSize(QSize(60, 60));
+        btnShowCoordinates->setMinimumSize(QSize(50, 50));
         QIcon icon9;
         icon9.addFile(QString::fromUtf8(":/resources/icons/coordenadas.svg"), QSize(), QIcon::Mode::Normal, QIcon::State::Off);
         btnShowCoordinates->setIcon(icon9);
-        btnShowCoordinates->setIconSize(QSize(40, 40));
         btnShowCoordinates->setCheckable(true);
 
         verticalLayoutTools->addWidget(btnShowCoordinates);
@@ -255,91 +242,99 @@ public:
         verticalLayoutTools->addItem(verticalSpacerTools);
 
 
-        horizontalLayout->addWidget(frameTools);
+        horizontalLayoutGame->addWidget(frameTools);
 
         layoutMap = new QVBoxLayout();
         layoutMap->setObjectName("layoutMap");
-        layoutZoom = new QHBoxLayout();
-        layoutZoom->setObjectName("layoutZoom");
-        lblZoomIcon = new QLabel(gameContentContainer);
-        lblZoomIcon->setObjectName("lblZoomIcon");
-        lblZoomIcon->setMaximumSize(QSize(30, 30));
-        lblZoomIcon->setPixmap(QPixmap(QString::fromUtf8(":/lupa.jpg")));
-        lblZoomIcon->setScaledContents(true);
-
-        layoutZoom->addWidget(lblZoomIcon);
-
-        btnZoomIn = new QPushButton(gameContentContainer);
-        btnZoomIn->setObjectName("btnZoomIn");
-
-        layoutZoom->addWidget(btnZoomIn);
-
-        btnZoomOut = new QPushButton(gameContentContainer);
-        btnZoomOut->setObjectName("btnZoomOut");
-
-        layoutZoom->addWidget(btnZoomOut);
-
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
-
-        layoutZoom->addItem(horizontalSpacer);
-
-
-        layoutMap->addLayout(layoutZoom);
-
-        graphicsView = new QGraphicsView(gameContentContainer);
+        graphicsView = new QGraphicsView(centralwidget);
         graphicsView->setObjectName("graphicsView");
         graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
 
         layoutMap->addWidget(graphicsView);
 
 
-        horizontalLayout->addLayout(layoutMap);
+        horizontalLayoutGame->addLayout(layoutMap);
 
-        frameProblem = new QFrame(gameContentContainer);
-        frameProblem->setObjectName("frameProblem");
-        frameProblem->setMinimumSize(QSize(300, 0));
-        frameProblem->setMaximumSize(QSize(300, 16777215));
-        frameProblem->setFrameShape(QFrame::StyledPanel);
-        frameProblem->setFrameShadow(QFrame::Raised);
-        verticalLayoutProblem = new QVBoxLayout(frameProblem);
+        frameRightPanel = new QFrame(centralwidget);
+        frameRightPanel->setObjectName("frameRightPanel");
+        frameRightPanel->setMinimumSize(QSize(320, 0));
+        frameRightPanel->setMaximumSize(QSize(350, 16777215));
+        frameRightPanel->setFrameShape(QFrame::StyledPanel);
+        frameRightPanel->setFrameShadow(QFrame::Raised);
+        verticalLayoutRight = new QVBoxLayout(frameRightPanel);
+        verticalLayoutRight->setObjectName("verticalLayoutRight");
+        verticalLayoutRight->setContentsMargins(0, 0, 0, 10);
+        stackedWidgetProblem = new QStackedWidget(frameRightPanel);
+        stackedWidgetProblem->setObjectName("stackedWidgetProblem");
+        pageSelection = new QWidget();
+        pageSelection->setObjectName("pageSelection");
+        verticalLayoutSelection = new QVBoxLayout(pageSelection);
+        verticalLayoutSelection->setSpacing(10);
+        verticalLayoutSelection->setObjectName("verticalLayoutSelection");
+        verticalLayoutSelection->setContentsMargins(10, 10, 10, 10);
+        labelSelectTitle = new QLabel(pageSelection);
+        labelSelectTitle->setObjectName("labelSelectTitle");
+        QFont font1;
+        font1.setPointSize(11);
+        font1.setBold(true);
+        labelSelectTitle->setFont(font1);
+        labelSelectTitle->setAlignment(Qt::AlignCenter);
+
+        verticalLayoutSelection->addWidget(labelSelectTitle);
+
+        btnRandom = new QPushButton(pageSelection);
+        btnRandom->setObjectName("btnRandom");
+        btnRandom->setMinimumSize(QSize(0, 40));
+
+        verticalLayoutSelection->addWidget(btnRandom);
+
+        listProblems = new QListWidget(pageSelection);
+        listProblems->setObjectName("listProblems");
+
+        verticalLayoutSelection->addWidget(listProblems);
+
+        stackedWidgetProblem->addWidget(pageSelection);
+        pageProblem = new QWidget();
+        pageProblem->setObjectName("pageProblem");
+        verticalLayoutProblem = new QVBoxLayout(pageProblem);
+        verticalLayoutProblem->setSpacing(10);
         verticalLayoutProblem->setObjectName("verticalLayoutProblem");
-        labelTitle = new QLabel(frameProblem);
+        verticalLayoutProblem->setContentsMargins(10, 10, 10, 10);
+        labelTitle = new QLabel(pageProblem);
         labelTitle->setObjectName("labelTitle");
-        QFont font;
-        font.setBold(true);
-        labelTitle->setFont(font);
+        labelTitle->setFont(font1);
 
         verticalLayoutProblem->addWidget(labelTitle);
 
-        labelProblemText = new QLabel(frameProblem);
-        labelProblemText->setObjectName("labelProblemText");
-        labelProblemText->setWordWrap(true);
+        textProblemDescription = new QTextBrowser(pageProblem);
+        textProblemDescription->setObjectName("textProblemDescription");
+        textProblemDescription->setFrameShape(QFrame::NoFrame);
 
-        verticalLayoutProblem->addWidget(labelProblemText);
+        verticalLayoutProblem->addWidget(textProblemDescription);
 
-        lineProblem = new QFrame(frameProblem);
+        lineProblem = new QFrame(pageProblem);
         lineProblem->setObjectName("lineProblem");
         lineProblem->setFrameShape(QFrame::Shape::HLine);
         lineProblem->setFrameShadow(QFrame::Shadow::Sunken);
 
         verticalLayoutProblem->addWidget(lineProblem);
 
-        radioAns1 = new QRadioButton(frameProblem);
+        radioAns1 = new QRadioButton(pageProblem);
         radioAns1->setObjectName("radioAns1");
 
         verticalLayoutProblem->addWidget(radioAns1);
 
-        radioAns2 = new QRadioButton(frameProblem);
+        radioAns2 = new QRadioButton(pageProblem);
         radioAns2->setObjectName("radioAns2");
 
         verticalLayoutProblem->addWidget(radioAns2);
 
-        radioAns3 = new QRadioButton(frameProblem);
+        radioAns3 = new QRadioButton(pageProblem);
         radioAns3->setObjectName("radioAns3");
 
         verticalLayoutProblem->addWidget(radioAns3);
 
-        radioAns4 = new QRadioButton(frameProblem);
+        radioAns4 = new QRadioButton(pageProblem);
         radioAns4->setObjectName("radioAns4");
 
         verticalLayoutProblem->addWidget(radioAns4);
@@ -348,96 +343,44 @@ public:
 
         verticalLayoutProblem->addItem(verticalSpacerProblem);
 
-        btnCheck = new QPushButton(frameProblem);
+        btnCheck = new QPushButton(pageProblem);
         btnCheck->setObjectName("btnCheck");
+        btnCheck->setMinimumSize(QSize(0, 35));
 
         verticalLayoutProblem->addWidget(btnCheck);
 
-        btnClose = new QPushButton(frameProblem);
+        btnClose = new QPushButton(pageProblem);
         btnClose->setObjectName("btnClose");
+        btnClose->setMinimumSize(QSize(0, 30));
 
         verticalLayoutProblem->addWidget(btnClose);
 
+        stackedWidgetProblem->addWidget(pageProblem);
 
-        horizontalLayout->addWidget(frameProblem);
+        verticalLayoutRight->addWidget(stackedWidgetProblem);
 
-
-        gridLayout_Main->addWidget(gameContentContainer, 0, 0, 1, 1);
-
-        selectionOverlay = new QWidget(centralwidget);
-        selectionOverlay->setObjectName("selectionOverlay");
-        sizePolicy.setHeightForWidth(selectionOverlay->sizePolicy().hasHeightForWidth());
-        selectionOverlay->setSizePolicy(sizePolicy);
-        verticalLayoutOverlay = new QVBoxLayout(selectionOverlay);
-        verticalLayoutOverlay->setObjectName("verticalLayoutOverlay");
-        verticalLayoutOverlay->setContentsMargins(60, -1, 20, -1);
-        horizontalLayoutTopBar = new QHBoxLayout();
-        horizontalLayoutTopBar->setObjectName("horizontalLayoutTopBar");
-        horizontalSpacerTop = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
-
-        horizontalLayoutTopBar->addItem(horizontalSpacerTop);
-
-        verticalLayoutUser = new QVBoxLayout();
-        verticalLayoutUser->setObjectName("verticalLayoutUser");
-        btnAvatar = new QPushButton(selectionOverlay);
-        btnAvatar->setObjectName("btnAvatar");
-        btnAvatar->setMinimumSize(QSize(80, 80));
-        btnAvatar->setMaximumSize(QSize(80, 80));
-        btnAvatar->setIconSize(QSize(60, 60));
-        btnAvatar->setFlat(true);
-
-        verticalLayoutUser->addWidget(btnAvatar);
-
-        btnLogout = new QPushButton(selectionOverlay);
+        layoutLogout = new QHBoxLayout();
+        layoutLogout->setObjectName("layoutLogout");
+        layoutLogout->setContentsMargins(10, -1, 10, -1);
+        btnLogout = new QPushButton(frameRightPanel);
         btnLogout->setObjectName("btnLogout");
+        btnLogout->setMinimumSize(QSize(0, 35));
 
-        verticalLayoutUser->addWidget(btnLogout);
-
-
-        horizontalLayoutTopBar->addLayout(verticalLayoutUser);
+        layoutLogout->addWidget(btnLogout);
 
 
-        verticalLayoutOverlay->addLayout(horizontalLayoutTopBar);
-
-        verticalSpacerTop2 = new QSpacerItem(20, 100, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
-
-        verticalLayoutOverlay->addItem(verticalSpacerTop2);
-
-        btnRandom = new QPushButton(selectionOverlay);
-        btnRandom->setObjectName("btnRandom");
-        btnRandom->setMinimumSize(QSize(480, 50));
-        QFont font1;
-        font1.setPointSize(12);
-        font1.setBold(true);
-        btnRandom->setFont(font1);
-
-        verticalLayoutOverlay->addWidget(btnRandom, 0, Qt::AlignLeft);
-
-        btnToggleList = new QPushButton(selectionOverlay);
-        btnToggleList->setObjectName("btnToggleList");
-        btnToggleList->setMinimumSize(QSize(480, 40));
-        btnToggleList->setCheckable(true);
-
-        verticalLayoutOverlay->addWidget(btnToggleList, 0, Qt::AlignLeft);
-
-        listProblems = new QListWidget(selectionOverlay);
-        listProblems->setObjectName("listProblems");
-        listProblems->setMinimumSize(QSize(480, 300));
-        listProblems->setMaximumSize(QSize(700, 16777215));
-
-        verticalLayoutOverlay->addWidget(listProblems, 0, Qt::AlignLeft);
-
-        verticalSpacerBottom = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
-
-        verticalLayoutOverlay->addItem(verticalSpacerBottom);
+        verticalLayoutRight->addLayout(layoutLogout);
 
 
-        gridLayout_Main->addWidget(selectionOverlay, 0, 0, 1, 1);
+        horizontalLayoutGame->addWidget(frameRightPanel);
+
+
+        verticalLayoutMain->addLayout(horizontalLayoutGame);
 
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
-        menubar->setGeometry(QRect(0, 0, 1024, 26));
+        menubar->setGeometry(QRect(0, 0, 1200, 26));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
@@ -445,18 +388,22 @@ public:
 
         retranslateUi(MainWindow);
 
+        stackedWidgetProblem->setCurrentIndex(0);
+
+
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
 
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "Resoluci\303\263n de Problema", nullptr));
-        labelDrawTitle->setText(QCoreApplication::translate("MainWindow", "Dibujo", nullptr));
+        labelAppName->setText(QCoreApplication::translate("MainWindow", "Navegaci\303\263n N\303\241utica", nullptr));
+        btnAvatar->setText(QString());
 #if QT_CONFIG(tooltip)
-        btnPunto->setToolTip(QCoreApplication::translate("MainWindow", "Marcar un punto", nullptr));
+        btnPunto->setToolTip(QCoreApplication::translate("MainWindow", "Punto", nullptr));
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        btnDrawLine->setToolTip(QCoreApplication::translate("MainWindow", "Trazar l\303\255nea", nullptr));
+        btnDrawLine->setToolTip(QCoreApplication::translate("MainWindow", "L\303\255nea", nullptr));
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         btnDrawArc->setToolTip(QCoreApplication::translate("MainWindow", "Comp\303\241s", nullptr));
@@ -464,7 +411,6 @@ public:
 #if QT_CONFIG(tooltip)
         btnAnnotateText->setToolTip(QCoreApplication::translate("MainWindow", "Texto", nullptr));
 #endif // QT_CONFIG(tooltip)
-        labelMeasureTitle->setText(QCoreApplication::translate("MainWindow", "Medici\303\263n", nullptr));
 #if QT_CONFIG(tooltip)
         btnProtractor->setToolTip(QCoreApplication::translate("MainWindow", "Transportador", nullptr));
 #endif // QT_CONFIG(tooltip)
@@ -472,69 +418,29 @@ public:
         btnRulerDistance->setToolTip(QCoreApplication::translate("MainWindow", "Regla", nullptr));
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        btnChangeColor->setToolTip(QCoreApplication::translate("MainWindow", "Color", nullptr));
+        btnChangeColor->setToolTip(QCoreApplication::translate("MainWindow", "Cambiar Color", nullptr));
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
         btnEraser->setToolTip(QCoreApplication::translate("MainWindow", "Borrador", nullptr));
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        btnClearMap->setToolTip(QCoreApplication::translate("MainWindow", "Limpiar todo", nullptr));
+        btnClearMap->setToolTip(QCoreApplication::translate("MainWindow", "Limpiar Todo", nullptr));
 #endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(tooltip)
-        btnShowCoordinates->setToolTip(QCoreApplication::translate("MainWindow", "Coordenadas", nullptr));
+        btnShowCoordinates->setToolTip(QCoreApplication::translate("MainWindow", "Ver Coordenadas", nullptr));
 #endif // QT_CONFIG(tooltip)
-        lblZoomIcon->setText(QString());
-        btnZoomIn->setText(QCoreApplication::translate("MainWindow", "+", nullptr));
-        btnZoomOut->setText(QCoreApplication::translate("MainWindow", "-", nullptr));
+        labelSelectTitle->setText(QCoreApplication::translate("MainWindow", "Selecciona un Problema", nullptr));
+        btnRandom->setText(QCoreApplication::translate("MainWindow", "\302\241Problema Aleatorio!", nullptr));
         labelTitle->setText(QCoreApplication::translate("MainWindow", "Problema:", nullptr));
-        labelProblemText->setText(QCoreApplication::translate("MainWindow", "Texto del problema aqu\303\255...", nullptr));
+        textProblemDescription->setStyleSheet(QCoreApplication::translate("MainWindow", "background: transparent;", nullptr));
         radioAns1->setText(QCoreApplication::translate("MainWindow", "Opci\303\263n A", nullptr));
         radioAns2->setText(QCoreApplication::translate("MainWindow", "Opci\303\263n B", nullptr));
         radioAns3->setText(QCoreApplication::translate("MainWindow", "Opci\303\263n C", nullptr));
         radioAns4->setText(QCoreApplication::translate("MainWindow", "Opci\303\263n D", nullptr));
         btnCheck->setText(QCoreApplication::translate("MainWindow", "Comprobar Respuesta", nullptr));
-        btnClose->setText(QCoreApplication::translate("MainWindow", "Volver a Selecci\303\263n", nullptr));
-        selectionOverlay->setStyleSheet(QCoreApplication::translate("MainWindow", "\n"
-"#selectionOverlay {\n"
-"    background-color: rgba(20, 30, 40, 220); \n"
-"}\n"
-"#selectionOverlay QLabel, #selectionOverlay QCheckBox {\n"
-"    color: #ffffff;\n"
-"    font-weight: bold;\n"
-"    font-size: 14px;\n"
-"}\n"
-"#selectionOverlay QListWidget {\n"
-"    background-color: #f0f0f0;\n"
-"    color: #000000;\n"
-"    border: 2px solid #5da4d6;\n"
-"    border-radius: 6px;\n"
-"    font-size: 13px;\n"
-"}\n"
-"#selectionOverlay QPushButton {\n"
-"    background-color: #3498db; \n"
-"    color: white;\n"
-"    border: none;\n"
-"    border-radius: 6px;\n"
-"    padding: 8px;\n"
-"    font-weight: bold;\n"
-"    font-size: 14px;\n"
-"}\n"
-"#selectionOverlay QPushButton:hover {\n"
-"    background-color: #5dade2;\n"
-"}\n"
-"#selectionOverlay QPushButton:pressed {\n"
-"    background-color: #2980b9;\n"
-"}\n"
-"#selectionOverlay #btnAvatar {\n"
-"    background-color: transparent;\n"
-"    border: 2px solid white;\n"
-"    border-radius: 40px; \n"
-"}\n"
-"       ", nullptr));
-        btnAvatar->setText(QString());
-        btnLogout->setText(QCoreApplication::translate("MainWindow", "Cerrar sesi\303\263n", nullptr));
-        btnRandom->setText(QCoreApplication::translate("MainWindow", "\302\241Problema aleatorio!", nullptr));
-        btnToggleList->setText(QCoreApplication::translate("MainWindow", "Ver lista de problemas \342\226\274", nullptr));
+        btnClose->setText(QCoreApplication::translate("MainWindow", "Volver a la lista", nullptr));
+        btnLogout->setStyleSheet(QCoreApplication::translate("MainWindow", "background-color: #d9534f; color: white; border-radius: 4px;", nullptr));
+        btnLogout->setText(QCoreApplication::translate("MainWindow", "Cerrar Sesi\303\263n", nullptr));
     } // retranslateUi
 
 };
