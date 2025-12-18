@@ -24,7 +24,6 @@
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QStatusBar>
-#include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -37,7 +36,6 @@ public:
     QVBoxLayout *verticalLayoutMain;
     QFrame *frameTopBar;
     QHBoxLayout *horizontalLayoutTop;
-    QLabel *labelAppName;
     QSpacerItem *horizontalSpacerTop;
     QPushButton *btnAvatar;
     QHBoxLayout *horizontalLayoutGame;
@@ -55,6 +53,10 @@ public:
     QPushButton *btnShowCoordinates;
     QSpacerItem *verticalSpacerTools;
     QVBoxLayout *layoutMap;
+    QHBoxLayout *layoutZoom;
+    QPushButton *btnZoomIn;
+    QPushButton *btnZoomOut;
+    QSpacerItem *horizontalSpacerZoom;
     QGraphicsView *graphicsView;
     QFrame *frameRightPanel;
     QVBoxLayout *verticalLayoutRight;
@@ -67,7 +69,7 @@ public:
     QWidget *pageProblem;
     QVBoxLayout *verticalLayoutProblem;
     QLabel *labelTitle;
-    QTextBrowser *textProblemDescription;
+    QLabel *textProblemDescription;
     QFrame *lineProblem;
     QRadioButton *radioAns1;
     QRadioButton *radioAns2;
@@ -100,16 +102,6 @@ public:
         horizontalLayoutTop = new QHBoxLayout(frameTopBar);
         horizontalLayoutTop->setObjectName("horizontalLayoutTop");
         horizontalLayoutTop->setContentsMargins(15, 5, 15, 5);
-        labelAppName = new QLabel(frameTopBar);
-        labelAppName->setObjectName("labelAppName");
-        QFont font;
-        font.setFamilies({QString::fromUtf8("Segoe UI")});
-        font.setPointSize(12);
-        font.setBold(true);
-        labelAppName->setFont(font);
-
-        horizontalLayoutTop->addWidget(labelAppName);
-
         horizontalSpacerTop = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
         horizontalLayoutTop->addItem(horizontalSpacerTop);
@@ -246,6 +238,28 @@ public:
 
         layoutMap = new QVBoxLayout();
         layoutMap->setObjectName("layoutMap");
+        layoutZoom = new QHBoxLayout();
+        layoutZoom->setObjectName("layoutZoom");
+        layoutZoom->setContentsMargins(10, 5, -1, -1);
+        btnZoomIn = new QPushButton(centralwidget);
+        btnZoomIn->setObjectName("btnZoomIn");
+        btnZoomIn->setMaximumSize(QSize(30, 30));
+
+        layoutZoom->addWidget(btnZoomIn);
+
+        btnZoomOut = new QPushButton(centralwidget);
+        btnZoomOut->setObjectName("btnZoomOut");
+        btnZoomOut->setMaximumSize(QSize(30, 30));
+
+        layoutZoom->addWidget(btnZoomOut);
+
+        horizontalSpacerZoom = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+
+        layoutZoom->addItem(horizontalSpacerZoom);
+
+
+        layoutMap->addLayout(layoutZoom);
+
         graphicsView = new QGraphicsView(centralwidget);
         graphicsView->setObjectName("graphicsView");
         graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
@@ -274,10 +288,10 @@ public:
         verticalLayoutSelection->setContentsMargins(10, 10, 10, 10);
         labelSelectTitle = new QLabel(pageSelection);
         labelSelectTitle->setObjectName("labelSelectTitle");
-        QFont font1;
-        font1.setPointSize(11);
-        font1.setBold(true);
-        labelSelectTitle->setFont(font1);
+        QFont font;
+        font.setPointSize(11);
+        font.setBold(true);
+        labelSelectTitle->setFont(font);
         labelSelectTitle->setAlignment(Qt::AlignCenter);
 
         verticalLayoutSelection->addWidget(labelSelectTitle);
@@ -302,13 +316,14 @@ public:
         verticalLayoutProblem->setContentsMargins(10, 10, 10, 10);
         labelTitle = new QLabel(pageProblem);
         labelTitle->setObjectName("labelTitle");
-        labelTitle->setFont(font1);
+        labelTitle->setFont(font);
 
         verticalLayoutProblem->addWidget(labelTitle);
 
-        textProblemDescription = new QTextBrowser(pageProblem);
+        textProblemDescription = new QLabel(pageProblem);
         textProblemDescription->setObjectName("textProblemDescription");
-        textProblemDescription->setFrameShape(QFrame::NoFrame);
+        textProblemDescription->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop);
+        textProblemDescription->setWordWrap(true);
 
         verticalLayoutProblem->addWidget(textProblemDescription);
 
@@ -397,7 +412,6 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "Resoluci\303\263n de Problema", nullptr));
-        labelAppName->setText(QCoreApplication::translate("MainWindow", "Navegaci\303\263n N\303\241utica", nullptr));
         btnAvatar->setText(QString());
 #if QT_CONFIG(tooltip)
         btnPunto->setToolTip(QCoreApplication::translate("MainWindow", "Punto", nullptr));
@@ -429,17 +443,19 @@ public:
 #if QT_CONFIG(tooltip)
         btnShowCoordinates->setToolTip(QCoreApplication::translate("MainWindow", "Ver Coordenadas", nullptr));
 #endif // QT_CONFIG(tooltip)
+        btnZoomIn->setText(QCoreApplication::translate("MainWindow", "+", nullptr));
+        btnZoomOut->setText(QCoreApplication::translate("MainWindow", "-", nullptr));
         labelSelectTitle->setText(QCoreApplication::translate("MainWindow", "Selecciona un Problema", nullptr));
         btnRandom->setText(QCoreApplication::translate("MainWindow", "\302\241Problema Aleatorio!", nullptr));
         labelTitle->setText(QCoreApplication::translate("MainWindow", "Problema:", nullptr));
-        textProblemDescription->setStyleSheet(QCoreApplication::translate("MainWindow", "background: transparent;", nullptr));
+        textProblemDescription->setText(QCoreApplication::translate("MainWindow", "Texto de descripci\303\263n del problema...", nullptr));
         radioAns1->setText(QCoreApplication::translate("MainWindow", "Opci\303\263n A", nullptr));
         radioAns2->setText(QCoreApplication::translate("MainWindow", "Opci\303\263n B", nullptr));
         radioAns3->setText(QCoreApplication::translate("MainWindow", "Opci\303\263n C", nullptr));
         radioAns4->setText(QCoreApplication::translate("MainWindow", "Opci\303\263n D", nullptr));
         btnCheck->setText(QCoreApplication::translate("MainWindow", "Comprobar Respuesta", nullptr));
         btnClose->setText(QCoreApplication::translate("MainWindow", "Volver a la lista", nullptr));
-        btnLogout->setStyleSheet(QCoreApplication::translate("MainWindow", "background-color: #d9534f; color: white; border-radius: 4px;", nullptr));
+        btnLogout->setStyleSheet(QCoreApplication::translate("MainWindow", "background-color: #e74c3c; color: white; border-radius: 4px; font-weight: bold;", nullptr));
         btnLogout->setText(QCoreApplication::translate("MainWindow", "Cerrar Sesi\303\263n", nullptr));
     } // retranslateUi
 

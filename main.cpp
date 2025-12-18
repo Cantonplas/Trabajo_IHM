@@ -2,23 +2,32 @@
 #include "logindialog.h"
 #include <QApplication>
 
+const int RESTART_CODE = 1000;
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    // 1. Mostrar Login
-    LoginDialog login;
-    if (login.exec() != QDialog::Accepted) {
-        return 0; // Si cierra el login, sale de la app
-    }
+    int currentExitCode = 0;
 
-    // 2. Obtener usuario logueado
-    User* currentUser = login.getLoggedUser();
+    do {
+        // 1. Mostrar Login
+        LoginDialog login;
+        if (login.exec() != QDialog::Accepted) {
+            // Si el usuario da a Cancelar o cierra la ventana de login, salimos de la app
+            break;
+        }
 
-    // 3. Arrancar MainWindow directamente pasándole el usuario
-    // MainWindow se encargará de mostrar el overlay de selección al inicio.
-    MainWindow w(currentUser);
-    w.show();
+        // 2. Si el login es correcto, creamos y mostramos la MainWindow
+        // Nota: MainWindow debe destruirse al acabar esta iteración para liberar memoria
+        MainWindow w(login.getLoggedUser());
+        w.show();
 
-    return a.exec();
+        // 3. Arrancamos el bucle de eventos y esperamos a que w se cierre
+        currentExitCode = a.exec();
+
+        // 4. Si el código de salida es RESTART_CODE, repetimos el bucle (volvemos al Login)
+    } while (currentExitCode == RESTART_CODE);
+
+    return currentExitCode;
 }

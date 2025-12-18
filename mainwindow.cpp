@@ -10,7 +10,7 @@
 #include <QMouseEvent> // NUEVO
 #include <QKeyEvent> // NUEVO
 #include <QPen> // NUEVO
-#include <QApplication> // NUEVO
+#include <QApplication> F
 #include <QColorDialog>
 #include <QPixmap>
 #include <QPainter>
@@ -81,24 +81,27 @@ void MainWindow::initSelectionList()
         }
     }
 
-    // 2. Configurar Lista (SIN ESTILOS CSS EXTRAÑOS)
+    // 2. Configurar Lista
     ui->listProblems->clear();
 
-    // Comportamiento del texto
-    ui->listProblems->setWordWrap(true);
-    ui->listProblems->setTextElideMode(Qt::ElideNone);
-    ui->listProblems->setResizeMode(QListView::Adjust);
-    ui->listProblems->setSpacing(2); // Un espacio pequeño estándar
+    // --- CONFIGURACIÓN PARA QUE EL TEXTO NO SE CORTE ---
+    ui->listProblems->setWordWrap(true);                   // Permite saltos de línea
+    ui->listProblems->setTextElideMode(Qt::ElideNone);     // Prohíbe poner "..." al final
+    ui->listProblems->setResizeMode(QListView::Adjust);    // Se adapta si cambias el tamaño de ventana
+    ui->listProblems->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // Scroll suave
+    ui->listProblems->setSpacing(12);                      // Espacio entre problemas
+    // ---------------------------------------------------
 
     const auto &problems = Navigation::instance().problems();
     for (int i = 0; i < problems.size(); ++i) {
+        // IMPORTANTE: Aquí pasamos el texto COMPLETO (problems[i].text()), sin .left()
         QString labelText = QString("%1. %2").arg(i + 1).arg(problems[i].text());
+
         QListWidgetItem *item = new QListWidgetItem(labelText);
         item->setData(Qt::UserRole, i);
         ui->listProblems->addItem(item);
     }
 }
-
 
 // SLOT: Cuando seleccionan un problema de la lista
 void MainWindow::on_listProblems_itemClicked(QListWidgetItem *item)
@@ -324,8 +327,10 @@ void MainWindow::loadChart()
         qDebug() << "Error: No se pudo cargar la imagen del mapa.";
         return;
     }
-    m_scene->addPixmap(pixmap);
+    QGraphicsPixmapItem *item = m_scene->addPixmap(pixmap);
     m_scene->setSceneRect(pixmap.rect());
+    ui->graphicsView->scale(0.4, 0.4);
+    ui->graphicsView->centerOn(item->boundingRect().center());
 }
 
 void MainWindow::setupProblemUI(int index)
@@ -405,7 +410,7 @@ void MainWindow::on_btnClose_clicked()
 
 void MainWindow::on_btnLogout_clicked()
 {
-    this->close(); // Cierra la ventana principal
+    QApplication::exit(1000);
 }
 // =========================================================================
 // CÓDIGO AÑADIDO: Lógica de Dibujo de Líneas (Basado en el profesor)

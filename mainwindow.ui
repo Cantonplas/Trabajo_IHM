@@ -60,20 +60,6 @@
        </property>
        
        <item>
-        <widget class="QLabel" name="labelAppName">
-         <property name="font">
-          <font>
-           <family>Segoe UI</family>
-           <pointsize>12</pointsize>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Navegación Náutica</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <spacer name="horizontalSpacerTop">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -260,6 +246,52 @@
       <item>
        <layout class="QVBoxLayout" name="layoutMap">
         <item>
+         <layout class="QHBoxLayout" name="layoutZoom">
+          <property name="leftMargin"><number>10</number></property>
+          <property name="topMargin"><number>5</number></property>
+          <item>
+           <widget class="QPushButton" name="btnZoomIn">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>+</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnZoomOut">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacerZoom">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        
+        <item>
          <widget class="QGraphicsView" name="graphicsView">
           <property name="dragMode">
            <enum>QGraphicsView::ScrollHandDrag</enum>
@@ -374,12 +406,15 @@
               </widget>
              </item>
              <item>
-              <widget class="QTextBrowser" name="textProblemDescription">
-               <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+              <widget class="QLabel" name="textProblemDescription">
+               <property name="text">
+                <string>Texto de descripción del problema...</string>
                </property>
-               <property name="styleSheet">
-                <string>background: transparent;</string>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -475,7 +510,7 @@
               </size>
              </property>
              <property name="styleSheet">
-              <string>background-color: #d9534f; color: white; border-radius: 4px;</string>
+              <string>background-color: #e74c3c; color: white; border-radius: 4px; font-weight: bold;</string>
              </property>
              <property name="text">
               <string>Cerrar Sesión</string>
