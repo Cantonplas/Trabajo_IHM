@@ -11,10 +11,16 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QDateEdit>
 #include <QtWidgets/QDialog>
+#include <QtWidgets/QFormLayout>
+#include <QtWidgets/QGroupBox>
+#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -23,80 +29,274 @@ QT_BEGIN_NAMESPACE
 class Ui_LoginDialog
 {
 public:
-    QPushButton *pushButton_2;
-    QLabel *label;
-    QWidget *verticalLayoutWidget;
-    QVBoxLayout *verticalLayout_2;
-    QLabel *label_2;
-    QLineEdit *lineEdit;
-    QLabel *label_3;
-    QLineEdit *lineEdit_1;
-    QLabel *label_4;
-    QPushButton *pushButton;
+    QVBoxLayout *verticalLayoutMain;
+    QLabel *lblHeader;
+    QStackedWidget *stackedWidget;
+    QWidget *pageLogin;
+    QVBoxLayout *verticalLayoutLogin;
+    QGroupBox *groupBoxLogin;
+    QFormLayout *formLayoutLogin;
+    QLabel *lblUser;
+    QLineEdit *txtUser;
+    QLabel *lblPass;
+    QLineEdit *txtPass;
+    QPushButton *btnLogin;
+    QSpacerItem *verticalSpacerLogin;
+    QLabel *labelInfo1;
+    QPushButton *btnGotoRegister;
+    QWidget *pageRegister;
+    QVBoxLayout *verticalLayoutReg;
+    QHBoxLayout *horizontalLayoutAvatar;
+    QLabel *lblAvatarPreview;
+    QPushButton *btnSelectAvatar;
+    QGroupBox *groupBoxReg;
+    QFormLayout *formLayoutReg;
+    QLabel *l1;
+    QLineEdit *txtRegUser;
+    QLabel *lemail;
+    QLineEdit *txtRegEmail;
+    QLabel *l2;
+    QLineEdit *txtRegPass;
+    QLabel *l3;
+    QLineEdit *txtRegPass2;
+    QLabel *l7;
+    QDateEdit *dateBirth;
+    QPushButton *btnRegister;
+    QPushButton *btnGotoLogin;
 
     void setupUi(QDialog *LoginDialog)
     {
         if (LoginDialog->objectName().isEmpty())
             LoginDialog->setObjectName("LoginDialog");
-        LoginDialog->resize(400, 300);
-        pushButton_2 = new QPushButton(LoginDialog);
-        pushButton_2->setObjectName("pushButton_2");
-        pushButton_2->setGeometry(QRect(110, 270, 71, 20));
-        label = new QLabel(LoginDialog);
-        label->setObjectName("label");
-        label->setGeometry(QRect(10, 270, 101, 16));
-        verticalLayoutWidget = new QWidget(LoginDialog);
-        verticalLayoutWidget->setObjectName("verticalLayoutWidget");
-        verticalLayoutWidget->setGeometry(QRect(80, 70, 241, 131));
-        verticalLayout_2 = new QVBoxLayout(verticalLayoutWidget);
-        verticalLayout_2->setObjectName("verticalLayout_2");
-        verticalLayout_2->setContentsMargins(0, 0, 0, 0);
-        label_2 = new QLabel(verticalLayoutWidget);
-        label_2->setObjectName("label_2");
+        LoginDialog->resize(420, 550);
+        LoginDialog->setMinimumSize(QSize(420, 500));
+        verticalLayoutMain = new QVBoxLayout(LoginDialog);
+        verticalLayoutMain->setSpacing(20);
+        verticalLayoutMain->setObjectName("verticalLayoutMain");
+        verticalLayoutMain->setContentsMargins(30, 30, 30, 30);
+        lblHeader = new QLabel(LoginDialog);
+        lblHeader->setObjectName("lblHeader");
+        QFont font;
+        font.setPointSize(16);
+        font.setBold(true);
+        lblHeader->setFont(font);
+        lblHeader->setAlignment(Qt::AlignmentFlag::AlignCenter);
 
-        verticalLayout_2->addWidget(label_2);
+        verticalLayoutMain->addWidget(lblHeader);
 
-        lineEdit = new QLineEdit(verticalLayoutWidget);
-        lineEdit->setObjectName("lineEdit");
+        stackedWidget = new QStackedWidget(LoginDialog);
+        stackedWidget->setObjectName("stackedWidget");
+        pageLogin = new QWidget();
+        pageLogin->setObjectName("pageLogin");
+        verticalLayoutLogin = new QVBoxLayout(pageLogin);
+        verticalLayoutLogin->setSpacing(15);
+        verticalLayoutLogin->setObjectName("verticalLayoutLogin");
+        groupBoxLogin = new QGroupBox(pageLogin);
+        groupBoxLogin->setObjectName("groupBoxLogin");
+        formLayoutLogin = new QFormLayout(groupBoxLogin);
+        formLayoutLogin->setObjectName("formLayoutLogin");
+        formLayoutLogin->setVerticalSpacing(15);
+        lblUser = new QLabel(groupBoxLogin);
+        lblUser->setObjectName("lblUser");
 
-        verticalLayout_2->addWidget(lineEdit);
+        formLayoutLogin->setWidget(0, QFormLayout::ItemRole::LabelRole, lblUser);
 
-        label_3 = new QLabel(verticalLayoutWidget);
-        label_3->setObjectName("label_3");
+        txtUser = new QLineEdit(groupBoxLogin);
+        txtUser->setObjectName("txtUser");
+        txtUser->setMinimumSize(QSize(0, 30));
 
-        verticalLayout_2->addWidget(label_3);
+        formLayoutLogin->setWidget(0, QFormLayout::ItemRole::FieldRole, txtUser);
 
-        lineEdit_1 = new QLineEdit(verticalLayoutWidget);
-        lineEdit_1->setObjectName("lineEdit_1");
-        lineEdit_1->setEchoMode(QLineEdit::EchoMode::Password);
+        lblPass = new QLabel(groupBoxLogin);
+        lblPass->setObjectName("lblPass");
 
-        verticalLayout_2->addWidget(lineEdit_1);
+        formLayoutLogin->setWidget(1, QFormLayout::ItemRole::LabelRole, lblPass);
 
-        label_4 = new QLabel(verticalLayoutWidget);
-        label_4->setObjectName("label_4");
+        txtPass = new QLineEdit(groupBoxLogin);
+        txtPass->setObjectName("txtPass");
+        txtPass->setMinimumSize(QSize(0, 30));
+        txtPass->setEchoMode(QLineEdit::EchoMode::Password);
 
-        verticalLayout_2->addWidget(label_4);
+        formLayoutLogin->setWidget(1, QFormLayout::ItemRole::FieldRole, txtPass);
 
-        pushButton = new QPushButton(verticalLayoutWidget);
-        pushButton->setObjectName("pushButton");
 
-        verticalLayout_2->addWidget(pushButton);
+        verticalLayoutLogin->addWidget(groupBoxLogin);
+
+        btnLogin = new QPushButton(pageLogin);
+        btnLogin->setObjectName("btnLogin");
+        btnLogin->setMinimumSize(QSize(0, 40));
+        QFont font1;
+        font1.setBold(true);
+        btnLogin->setFont(font1);
+
+        verticalLayoutLogin->addWidget(btnLogin);
+
+        verticalSpacerLogin = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+
+        verticalLayoutLogin->addItem(verticalSpacerLogin);
+
+        labelInfo1 = new QLabel(pageLogin);
+        labelInfo1->setObjectName("labelInfo1");
+        labelInfo1->setAlignment(Qt::AlignmentFlag::AlignCenter);
+
+        verticalLayoutLogin->addWidget(labelInfo1);
+
+        btnGotoRegister = new QPushButton(pageLogin);
+        btnGotoRegister->setObjectName("btnGotoRegister");
+        btnGotoRegister->setMinimumSize(QSize(0, 30));
+        btnGotoRegister->setFlat(false);
+
+        verticalLayoutLogin->addWidget(btnGotoRegister);
+
+        stackedWidget->addWidget(pageLogin);
+        pageRegister = new QWidget();
+        pageRegister->setObjectName("pageRegister");
+        verticalLayoutReg = new QVBoxLayout(pageRegister);
+        verticalLayoutReg->setSpacing(15);
+        verticalLayoutReg->setObjectName("verticalLayoutReg");
+        horizontalLayoutAvatar = new QHBoxLayout();
+        horizontalLayoutAvatar->setObjectName("horizontalLayoutAvatar");
+        lblAvatarPreview = new QLabel(pageRegister);
+        lblAvatarPreview->setObjectName("lblAvatarPreview");
+        lblAvatarPreview->setMinimumSize(QSize(64, 64));
+        lblAvatarPreview->setMaximumSize(QSize(64, 64));
+        lblAvatarPreview->setFrameShape(QFrame::Shape::StyledPanel);
+        lblAvatarPreview->setScaledContents(true);
+
+        horizontalLayoutAvatar->addWidget(lblAvatarPreview);
+
+        btnSelectAvatar = new QPushButton(pageRegister);
+        btnSelectAvatar->setObjectName("btnSelectAvatar");
+        btnSelectAvatar->setMinimumSize(QSize(0, 30));
+
+        horizontalLayoutAvatar->addWidget(btnSelectAvatar);
+
+
+        verticalLayoutReg->addLayout(horizontalLayoutAvatar);
+
+        groupBoxReg = new QGroupBox(pageRegister);
+        groupBoxReg->setObjectName("groupBoxReg");
+        formLayoutReg = new QFormLayout(groupBoxReg);
+        formLayoutReg->setObjectName("formLayoutReg");
+        formLayoutReg->setVerticalSpacing(10);
+        l1 = new QLabel(groupBoxReg);
+        l1->setObjectName("l1");
+
+        formLayoutReg->setWidget(0, QFormLayout::ItemRole::LabelRole, l1);
+
+        txtRegUser = new QLineEdit(groupBoxReg);
+        txtRegUser->setObjectName("txtRegUser");
+        txtRegUser->setMinimumSize(QSize(0, 25));
+
+        formLayoutReg->setWidget(0, QFormLayout::ItemRole::FieldRole, txtRegUser);
+
+        lemail = new QLabel(groupBoxReg);
+        lemail->setObjectName("lemail");
+
+        formLayoutReg->setWidget(1, QFormLayout::ItemRole::LabelRole, lemail);
+
+        txtRegEmail = new QLineEdit(groupBoxReg);
+        txtRegEmail->setObjectName("txtRegEmail");
+        txtRegEmail->setMinimumSize(QSize(0, 25));
+
+        formLayoutReg->setWidget(1, QFormLayout::ItemRole::FieldRole, txtRegEmail);
+
+        l2 = new QLabel(groupBoxReg);
+        l2->setObjectName("l2");
+
+        formLayoutReg->setWidget(2, QFormLayout::ItemRole::LabelRole, l2);
+
+        txtRegPass = new QLineEdit(groupBoxReg);
+        txtRegPass->setObjectName("txtRegPass");
+        txtRegPass->setMinimumSize(QSize(0, 25));
+        txtRegPass->setEchoMode(QLineEdit::EchoMode::Password);
+
+        formLayoutReg->setWidget(2, QFormLayout::ItemRole::FieldRole, txtRegPass);
+
+        l3 = new QLabel(groupBoxReg);
+        l3->setObjectName("l3");
+
+        formLayoutReg->setWidget(3, QFormLayout::ItemRole::LabelRole, l3);
+
+        txtRegPass2 = new QLineEdit(groupBoxReg);
+        txtRegPass2->setObjectName("txtRegPass2");
+        txtRegPass2->setMinimumSize(QSize(0, 25));
+        txtRegPass2->setEchoMode(QLineEdit::EchoMode::Password);
+
+        formLayoutReg->setWidget(3, QFormLayout::ItemRole::FieldRole, txtRegPass2);
+
+        l7 = new QLabel(groupBoxReg);
+        l7->setObjectName("l7");
+
+        formLayoutReg->setWidget(4, QFormLayout::ItemRole::LabelRole, l7);
+
+        dateBirth = new QDateEdit(groupBoxReg);
+        dateBirth->setObjectName("dateBirth");
+        dateBirth->setMinimumSize(QSize(0, 25));
+        dateBirth->setCalendarPopup(true);
+
+        formLayoutReg->setWidget(4, QFormLayout::ItemRole::FieldRole, dateBirth);
+
+
+        verticalLayoutReg->addWidget(groupBoxReg);
+
+        btnRegister = new QPushButton(pageRegister);
+        btnRegister->setObjectName("btnRegister");
+        btnRegister->setMinimumSize(QSize(0, 40));
+        btnRegister->setFont(font1);
+
+        verticalLayoutReg->addWidget(btnRegister);
+
+        btnGotoLogin = new QPushButton(pageRegister);
+        btnGotoLogin->setObjectName("btnGotoLogin");
+        btnGotoLogin->setMinimumSize(QSize(0, 30));
+        btnGotoLogin->setFlat(true);
+
+        verticalLayoutReg->addWidget(btnGotoLogin);
+
+        stackedWidget->addWidget(pageRegister);
+
+        verticalLayoutMain->addWidget(stackedWidget);
 
 
         retranslateUi(LoginDialog);
+
+        stackedWidget->setCurrentIndex(1);
+        btnLogin->setDefault(true);
+
 
         QMetaObject::connectSlotsByName(LoginDialog);
     } // setupUi
 
     void retranslateUi(QDialog *LoginDialog)
     {
-        LoginDialog->setWindowTitle(QCoreApplication::translate("LoginDialog", "Dialog", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("LoginDialog", "Registrarse", nullptr));
-        label->setText(QCoreApplication::translate("LoginDialog", "\302\277Necesitas una cuenta?", nullptr));
-        label_2->setText(QCoreApplication::translate("LoginDialog", "Usuario:", nullptr));
-        label_3->setText(QCoreApplication::translate("LoginDialog", "Contrase\303\261a:", nullptr));
-        label_4->setText(QString());
-        pushButton->setText(QCoreApplication::translate("LoginDialog", "Iniciar sesi\303\263n", nullptr));
+        LoginDialog->setWindowTitle(QCoreApplication::translate("LoginDialog", "Acceso a Navegaci\303\263n", nullptr));
+        lblHeader->setText(QCoreApplication::translate("LoginDialog", "Iniciar Sesi\303\263n", nullptr));
+        groupBoxLogin->setTitle(QCoreApplication::translate("LoginDialog", "Credenciales", nullptr));
+        lblUser->setText(QCoreApplication::translate("LoginDialog", "Usuario:", nullptr));
+        lblPass->setText(QCoreApplication::translate("LoginDialog", "Contrase\303\261a:", nullptr));
+        btnLogin->setText(QCoreApplication::translate("LoginDialog", "Entrar", nullptr));
+        labelInfo1->setText(QCoreApplication::translate("LoginDialog", "\302\277A\303\272n no tienes cuenta?", nullptr));
+        btnGotoRegister->setText(QCoreApplication::translate("LoginDialog", "Reg\303\255strate aqu\303\255", nullptr));
+        lblAvatarPreview->setText(QString());
+        btnSelectAvatar->setText(QCoreApplication::translate("LoginDialog", "Seleccionar Foto...", nullptr));
+        groupBoxReg->setTitle(QCoreApplication::translate("LoginDialog", "Datos Personales", nullptr));
+        l1->setText(QCoreApplication::translate("LoginDialog", "Usuario*:", nullptr));
+#if QT_CONFIG(tooltip)
+        txtRegUser->setToolTip(QCoreApplication::translate("LoginDialog", "6-15 caracteres, sin espacios", nullptr));
+#endif // QT_CONFIG(tooltip)
+        txtRegUser->setPlaceholderText(QCoreApplication::translate("LoginDialog", "6-15 chars (letras, nums, -_)", nullptr));
+        lemail->setText(QCoreApplication::translate("LoginDialog", "Email*:", nullptr));
+        txtRegEmail->setPlaceholderText(QCoreApplication::translate("LoginDialog", "ejemplo@correo.com", nullptr));
+        l2->setText(QCoreApplication::translate("LoginDialog", "Contrase\303\261a*:", nullptr));
+#if QT_CONFIG(tooltip)
+        txtRegPass->setToolTip(QCoreApplication::translate("LoginDialog", "8-20 chars, Mayus, Minus, Digito, Especial", nullptr));
+#endif // QT_CONFIG(tooltip)
+        l3->setText(QCoreApplication::translate("LoginDialog", "Repetir*:", nullptr));
+        l7->setText(QCoreApplication::translate("LoginDialog", "F. Nacimiento:", nullptr));
+        dateBirth->setDisplayFormat(QCoreApplication::translate("LoginDialog", "dd/MM/yyyy", nullptr));
+        btnRegister->setText(QCoreApplication::translate("LoginDialog", "Crear Cuenta", nullptr));
+        btnGotoLogin->setText(QCoreApplication::translate("LoginDialog", "Volver a Iniciar Sesi\303\263n", nullptr));
     } // retranslateUi
 
 };

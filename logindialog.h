@@ -1,7 +1,8 @@
 #pragma once
 
 #include <QDialog>
-#include "navigation.h"
+#include <QImage>
+#include "navtypes.h"
 
 namespace Ui {
 class LoginDialog;
@@ -15,13 +16,24 @@ public:
     explicit LoginDialog(QWidget *parent = nullptr);
     ~LoginDialog();
 
-    User* getLoggedUser() const { return m_loggedUser; }
+    User* getLoggedUser() const;
 
 private slots:
-    void on_pushButton_clicked();
-    void on_pushButton_2_clicked();
+    void on_btnLogin_clicked();
+    void switchToRegister();
+    void switchToLogin();
+    void on_btnSelectAvatar_clicked();
+    void on_btnRegister_clicked();
 
 private:
     Ui::LoginDialog *ui;
-    User* m_loggedUser = nullptr;
+    User* m_loggedUser;
+    QImage m_selectedAvatar;
+
+    void loadDefaultAvatarPreview();
+
+    bool validateUsername(const QString &username);
+    bool validatePassword(const QString &password);
+    bool validateEmail(const QString &email);
+    bool validateAge(const QDate &birthDate);
 };
