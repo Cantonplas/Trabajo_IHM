@@ -12,6 +12,9 @@ StatsDialog::StatsDialog(User* user, QWidget *parent) :
     ui->tableStats->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     ui->dateEditFilter->setDate(QDate::currentDate().addDays(-7));
+    ui->dateEditFilter->setCalendarPopup(true);
+
+    connect(ui->btnFilter, &QPushButton::clicked, this, &StatsDialog::on_btnFilter_clicked);
 
     loadStats();
 }
@@ -32,7 +35,11 @@ void StatsDialog::loadStats()
 
     const QVector<Session> &sessions = m_user->sessions();
 
-    for(const Session &s : sessions) {
+    qDebug() << "Filtrando desde:" << filterDate << "Total Sesiones:" << sessions.size();
+
+    for(int i = sessions.size() - 1; i >= 0; --i) {
+        const Session &s = sessions[i];
+
         if (s.timeStamp().date() >= filterDate) {
 
             int row = ui->tableStats->rowCount();
@@ -59,7 +66,6 @@ void StatsDialog::loadStats()
             }
             ui->tableStats->setItem(row, 2, itemFaults);
 
-            // Sumar al total
             totalHits += s.hits();
             totalFaults += s.faults();
         }

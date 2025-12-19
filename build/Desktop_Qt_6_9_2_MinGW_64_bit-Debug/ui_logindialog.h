@@ -30,10 +30,11 @@ class Ui_LoginDialog
 {
 public:
     QVBoxLayout *verticalLayoutMain;
-    QLabel *lblHeader;
     QStackedWidget *stackedWidget;
     QWidget *pageLogin;
     QVBoxLayout *verticalLayoutLogin;
+    QLabel *label;
+    QLabel *lblHeader;
     QGroupBox *groupBoxLogin;
     QFormLayout *formLayoutLogin;
     QLabel *lblUser;
@@ -41,9 +42,9 @@ public:
     QLabel *lblPass;
     QLineEdit *txtPass;
     QPushButton *btnLogin;
-    QSpacerItem *verticalSpacerLogin;
     QLabel *labelInfo1;
     QPushButton *btnGotoRegister;
+    QSpacerItem *verticalSpacerLogin;
     QWidget *pageRegister;
     QVBoxLayout *verticalLayoutReg;
     QHBoxLayout *horizontalLayoutAvatar;
@@ -74,16 +75,6 @@ public:
         verticalLayoutMain->setSpacing(20);
         verticalLayoutMain->setObjectName("verticalLayoutMain");
         verticalLayoutMain->setContentsMargins(30, 30, 30, 30);
-        lblHeader = new QLabel(LoginDialog);
-        lblHeader->setObjectName("lblHeader");
-        QFont font;
-        font.setPointSize(16);
-        font.setBold(true);
-        lblHeader->setFont(font);
-        lblHeader->setAlignment(Qt::AlignmentFlag::AlignCenter);
-
-        verticalLayoutMain->addWidget(lblHeader);
-
         stackedWidget = new QStackedWidget(LoginDialog);
         stackedWidget->setObjectName("stackedWidget");
         pageLogin = new QWidget();
@@ -91,6 +82,27 @@ public:
         verticalLayoutLogin = new QVBoxLayout(pageLogin);
         verticalLayoutLogin->setSpacing(15);
         verticalLayoutLogin->setObjectName("verticalLayoutLogin");
+        label = new QLabel(pageLogin);
+        label->setObjectName("label");
+        QFont font;
+        font.setFamilies({QString::fromUtf8("SimSun")});
+        font.setPointSize(26);
+        font.setBold(false);
+        label->setFont(font);
+        label->setLayoutDirection(Qt::LayoutDirection::LeftToRight);
+
+        verticalLayoutLogin->addWidget(label);
+
+        lblHeader = new QLabel(pageLogin);
+        lblHeader->setObjectName("lblHeader");
+        QFont font1;
+        font1.setPointSize(16);
+        font1.setBold(true);
+        lblHeader->setFont(font1);
+        lblHeader->setAlignment(Qt::AlignmentFlag::AlignCenter);
+
+        verticalLayoutLogin->addWidget(lblHeader);
+
         groupBoxLogin = new QGroupBox(pageLogin);
         groupBoxLogin->setObjectName("groupBoxLogin");
         formLayoutLogin = new QFormLayout(groupBoxLogin);
@@ -125,15 +137,11 @@ public:
         btnLogin = new QPushButton(pageLogin);
         btnLogin->setObjectName("btnLogin");
         btnLogin->setMinimumSize(QSize(0, 40));
-        QFont font1;
-        font1.setBold(true);
-        btnLogin->setFont(font1);
+        QFont font2;
+        font2.setBold(true);
+        btnLogin->setFont(font2);
 
         verticalLayoutLogin->addWidget(btnLogin);
-
-        verticalSpacerLogin = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
-
-        verticalLayoutLogin->addItem(verticalSpacerLogin);
 
         labelInfo1 = new QLabel(pageLogin);
         labelInfo1->setObjectName("labelInfo1");
@@ -147,6 +155,10 @@ public:
         btnGotoRegister->setFlat(false);
 
         verticalLayoutLogin->addWidget(btnGotoRegister);
+
+        verticalSpacerLogin = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+
+        verticalLayoutLogin->addItem(verticalSpacerLogin);
 
         stackedWidget->addWidget(pageLogin);
         pageRegister = new QWidget();
@@ -243,7 +255,7 @@ public:
         btnRegister = new QPushButton(pageRegister);
         btnRegister->setObjectName("btnRegister");
         btnRegister->setMinimumSize(QSize(0, 40));
-        btnRegister->setFont(font1);
+        btnRegister->setFont(font2);
 
         verticalLayoutReg->addWidget(btnRegister);
 
@@ -261,7 +273,7 @@ public:
 
         retranslateUi(LoginDialog);
 
-        stackedWidget->setCurrentIndex(1);
+        stackedWidget->setCurrentIndex(0);
         btnLogin->setDefault(true);
 
 
@@ -271,6 +283,7 @@ public:
     void retranslateUi(QDialog *LoginDialog)
     {
         LoginDialog->setWindowTitle(QCoreApplication::translate("LoginDialog", "Acceso a Navegaci\303\263n", nullptr));
+        label->setText(QCoreApplication::translate("LoginDialog", "    Carta N\303\241utica", nullptr));
         lblHeader->setText(QCoreApplication::translate("LoginDialog", "Iniciar Sesi\303\263n", nullptr));
         groupBoxLogin->setTitle(QCoreApplication::translate("LoginDialog", "Credenciales", nullptr));
         lblUser->setText(QCoreApplication::translate("LoginDialog", "Usuario:", nullptr));
