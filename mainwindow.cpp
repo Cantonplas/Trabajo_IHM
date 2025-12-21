@@ -208,46 +208,47 @@ void MainWindow::setupToolModes()
 }
 
 
+// --- DENTRO DE mainwindow.cpp ---
 void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&item)
 {
     if (!item) {
         QSvgRenderer renderer(resourcePath);
-
-        // --- DEFINICIÓN DEL TAMAÑO DE RENDERIZADO ---
         QSize renderSize;
 
-        // Definimos tamaños apropiados para cada utensilio
         if (resourcePath.contains("ruler.svg")) {
-            // Ajustar para que se vea alargada (e.g., 280x60 o la proporción de tu SVG)
-            renderSize = QSize(800, 60);
+            renderSize = QSize(1000, 80);
         } else if (resourcePath.contains("transportador.svg")) {
-            // Mantener el transportador cuadrado o grande para la precisión angular
             renderSize = QSize(500, 500);
         } else {
-            renderSize = QSize(100, 100); // Tamaño por defecto para otros elementos
+            renderSize = QSize(100, 100);
         }
 
         QPixmap pixmap(renderSize);
         pixmap.fill(Qt::transparent);
-
         QPainter painter(&pixmap);
-        // La renderización se ajusta automáticamente al tamaño del QPixmap (renderSize)
         renderer.render(&painter);
 
-        // ... (el resto del código se mantiene)
-        item = new QGraphicsPixmapItem(pixmap);
-        item->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges |
-                       QGraphicsItem::ItemIgnoresTransformations);
+        // CREACIÓN ÚNICA: Decidimos qué objeto crear
+        if (resourcePath.contains("ruler.svg")) {
+            m_rulerItem = new RulerItem(pixmap);
+            item = m_rulerItem;
+        } else {
+            item = new QGraphicsPixmapItem(pixmap);
+            // El transportador suele preferirse con tamaño fijo, por eso dejamos este flag
+            item->setFlags(QGraphicsItem::ItemIsMovable |
+                           QGraphicsItem::ItemSendsGeometryChanges |
+                           QGraphicsItem::ItemIgnoresTransformations);
+        }
 
         m_scene->addItem(item);
 
+        // Posicionamiento inicial en el centro de la vista
         QPointF center = ui->graphicsView->mapToScene(ui->graphicsView->viewport()->rect().center());
         item->setPos(center - QPointF(renderSize.width()/2, renderSize.height()/2));
     }
 
     item->setVisible(true);
 }
-
 // =========================================================================
 // SLOTS PARA LA BARRA DE HERRAMIENTAS
 // =========================================================================
@@ -474,58 +475,74 @@ void MainWindow::setDrawLineMode(bool enabled)
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    // En tu implementación, 'obj' será ui->graphicsView->viewport()
+    // Solo filtramos eventos que vengan del área del mapa (viewport)
     if (obj == ui->graphicsView->viewport()) {
 
-        // Adaptación: Sustituimos m_drawLineMode por m_currentMode == LINE_MODE
-        if (m_currentMode != LINE_MODE)
-            return false; // No estamos en modo línea, dejamos que la vista lo gestione (e.g., arrastre)
+        // Si no estamos en modo LÍNEA ni en modo ARCO, no hacemos nada y dejamos pasar el evento
+        if (m_currentMode != LINE_MODE && m_currentMode != ARC_MODE) {
+            return false;
+        }
 
+        // --- 1. CLIC DEL RATÓN ---
         if (event->type() == QEvent::MouseButtonPress) {
             auto *e = static_cast<QMouseEvent*>(event);
-
-            // Usar el botón derecho para iniciar la línea (como en el código del profesor)
             if (e->button() == Qt::RightButton) {
                 QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
-                m_lineStart = scenePos; // Guardar punto de inicio
 
-                // Usamos un QPen (debes definir el color actual de dibujo)
-                QPen pen(Qt::red, 2); // Usamos un grosor menor para el dibujo final
-                m_currentLineItem = new QGraphicsLineItem();
-
-                m_currentLineItem->setZValue(10); // Aseguramos que esté por encima del mapa
-                m_currentLineItem->setPen(pen);
-
-                // Inicializamos la línea como un punto
-                m_currentLineItem->setLine(QLineF(m_lineStart, m_lineStart));
-                ui->graphicsView->scene()->addItem(m_currentLineItem);
-
-                return true; // Consumimos el evento
+                if (m_currentMode == LINE_MODE) {
+                    m_lineStart = scenePos;
+                    QPen pen(Qt::red, 2);
+                    m_currentLineItem = new QGraphicsLineItem();
+                    m_currentLineItem->setZValue(10);
+                    m_currentLineItem->setPen(pen);
+                    m_currentLineItem->setLine(QLineF(m_lineStart, m_lineStart));
+                    m_scene->addItem(m_currentLineItem);
+                }
+                else if (m_currentMode == ARC_MODE) {
+                    m_arcCenter = scenePos;
+                    m_currentArcItem = new QGraphicsEllipseItem();
+                    QPen pen(Qt::red, 2);
+                    m_currentArcItem->setPen(pen);
+                    m_currentArcItem->setZValue(10);
+                    // Empezamos con un círculo de tamaño cero
+                    m_currentArcItem->setRect(m_arcCenter.x(), m_arcCenter.y(), 0, 0);
+                    m_scene->addItem(m_currentArcItem);
+                }
+                return true; // Indicamos que hemos manejado el evento
             }
         }
+        // --- 2. MOVIMIENTO DEL RATÓN ---
         else if (event->type() == QEvent::MouseMove) {
             auto *e = static_cast<QMouseEvent*>(event);
+            if (e->buttons() & Qt::RightButton) {
+                QPointF currentPos = ui->graphicsView->mapToScene(e->pos());
 
-            // Si el botón derecho está presionado Y tenemos un objeto de línea
-            if (e->buttons() & Qt::RightButton && m_currentLineItem) {
-                QPointF p2 = ui->graphicsView->mapToScene(e->pos());
-                // Redibujar la línea continuamente hasta la posición actual del ratón
-                m_currentLineItem->setLine(QLineF(m_lineStart, p2));
-                return true;
+                if (m_currentMode == LINE_MODE && m_currentLineItem) {
+                    m_currentLineItem->setLine(QLineF(m_lineStart, currentPos));
+                    return true;
+                }
+                else if (m_currentMode == ARC_MODE && m_currentArcItem) {
+                    qreal radius = QLineF(m_arcCenter, currentPos).length();
+                    // Rectángulo: esquina sup. izq. (centro - radio) y diámetro (2*radio)
+                    m_currentArcItem->setRect(m_arcCenter.x() - radius,
+                                              m_arcCenter.y() - radius,
+                                              radius * 2,
+                                              radius * 2);
+                    return true;
+                }
             }
         }
+        // --- 3. SOLTAR EL BOTÓN ---
         else if (event->type() == QEvent::MouseButtonRelease) {
             auto *e = static_cast<QMouseEvent*>(event);
-
-            // Al soltar el botón derecho, la línea se finaliza
-            if (e->button() == Qt::RightButton && m_currentLineItem) {
-                // Aquí se podría guardar la línea final o validar la longitud
-                m_currentLineItem = nullptr; // La línea ya está en la escena, solo liberamos el puntero temporal
+            if (e->button() == Qt::RightButton) {
+                m_currentLineItem = nullptr;
+                m_currentArcItem = nullptr;
                 return true;
             }
         }
     }
 
-    // Si el evento no fue manejado por nuestra lógica de dibujo, lo pasamos al padre
+    // Para cualquier otro evento u otro objeto, llamamos al filtro base
     return QMainWindow::eventFilter(obj, event);
 }
