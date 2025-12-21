@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QButtonGroup>
 #include <QGraphicsLineItem>
+#include <QGraphicsEllipseItem> // NUEVO: Para puntos
 #include <QGraphicsView>
 #include <QAbstractButton>
 #include <QGraphicsItem>
@@ -18,6 +19,7 @@
 #include "statsdialog.h"
 #include <QMenu>
 #include <QDateTime>
+#include <QColorDialog> // NUEVO: Para la paleta
 
 enum DrawMode {
     NONE,
@@ -76,6 +78,7 @@ private:
     void updateAvatarUI();
 
     DrawMode m_currentMode;
+    QColor m_currentDrawingColor = Qt::red;
     QGraphicsPixmapItem *m_protractorItem = nullptr;
     QGraphicsPixmapItem *m_rulerItem = nullptr;
     QButtonGroup *m_toolGroup = nullptr;
