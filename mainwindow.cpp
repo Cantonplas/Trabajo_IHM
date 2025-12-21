@@ -303,7 +303,6 @@ void MainWindow::on_btnClearMap_clicked()
             // Si el mapa base es el primer QGraphicsItem añadido, podemos asumir que es el primer elemento de la escena
             // o que es el único QGraphicsPixmapItem que no tiene las banderas de tool.
 
-            // --- CÓDIGO CLAVE CORREGIDO ---
 
             bool isMapBase = (qgraphicsitem_cast<QGraphicsPixmapItem*>(item) != nullptr &&
                               item != m_protractorItem &&
@@ -335,10 +334,12 @@ void MainWindow::on_btnClearMap_clicked()
 
 void MainWindow::on_btnChangeColor_clicked()
 {
-    QColor newColor = QColorDialog::getColor(Qt::red, this, "Seleccione el color para las marcas");
+    // ACTUALIZADO: Selector de color para la variable global m_currentDrawingColor
+    QColor newColor = QColorDialog::getColor(m_currentDrawingColor, this, "Seleccione el color para las marcas");
 
     if (newColor.isValid()) {
-        qDebug() << "Nuevo color seleccionado:" << newColor.name();
+        m_currentDrawingColor = newColor;
+        qDebug() << "Nuevo color seleccionado:" << m_currentDrawingColor.name();
     }
 }
 
@@ -453,79 +454,68 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     QMainWindow::closeEvent(event);
 }
-// =========================================================================
-// CÓDIGO AÑADIDO: Lógica de Dibujo de Líneas (Basado en el profesor)
-// =========================================================================
 
-// Esta función es necesaria para implementar la lógica del filtro de eventos
-// La mantenemos para compatibilidad si usas QAction toggled.
-// En tu caso, la activación del modo se realiza en onToolModeToggled.
 void MainWindow::setDrawLineMode(bool enabled)
 {
-    // Esta función no se usa directamente con tu sistema de botones,
-    // pero la dejamos si se usa un QAction por separado.
-    // La verdadera activación de modo ocurre en onToolModeToggled()
-
-    // Si la función fuera usada, aquí se activaría el modo y el cursor:
-    // m_drawLineMode = enabled;
-    // if (m_drawLineMode) view->setCursor(Qt::CrossCursor);
-    // else view->unsetCursor();
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    // En tu implementación, 'obj' será ui->graphicsView->viewport()
     if (obj == ui->graphicsView->viewport()) {
 
-        // Adaptación: Sustituimos m_drawLineMode por m_currentMode == LINE_MODE
-        if (m_currentMode != LINE_MODE)
-            return false; // No estamos en modo línea, dejamos que la vista lo gestione (e.g., arrastre)
-
-        if (event->type() == QEvent::MouseButtonPress) {
-            auto *e = static_cast<QMouseEvent*>(event);
-
-            // Usar el botón derecho para iniciar la línea (como en el código del profesor)
-            if (e->button() == Qt::RightButton) {
-                QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
-                m_lineStart = scenePos; // Guardar punto de inicio
-
-                // Usamos un QPen (debes definir el color actual de dibujo)
-                QPen pen(Qt::red, 2); // Usamos un grosor menor para el dibujo final
-                m_currentLineItem = new QGraphicsLineItem();
-
-                m_currentLineItem->setZValue(10); // Aseguramos que esté por encima del mapa
-                m_currentLineItem->setPen(pen);
-
-                // Inicializamos la línea como un punto
-                m_currentLineItem->setLine(QLineF(m_lineStart, m_lineStart));
-                ui->graphicsView->scene()->addItem(m_currentLineItem);
-
-                return true; // Consumimos el evento
+        // --- MODO PUNTO (DIBUJAR CON BOTÓN DERECHO) ---
+        if (m_currentMode == POINT_MODE) {
+            if (event->type() == QEvent::MouseButtonPress) {
+                auto *e = static_cast<QMouseEvent*>(event);
+                if (e->button() == Qt::RightButton) {
+                    QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
+                    qreal radius = 3.0;
+                    QGraphicsEllipseItem *point = m_scene->addEllipse(
+                        scenePos.x() - radius, scenePos.y() - radius,
+                        radius * 2, radius * 2,
+                        QPen(Qt::transparent),
+                        QBrush(m_currentDrawingColor) // Color global
+                        );
+                    point->setZValue(10);
+                    return true;
+                }
             }
         }
-        else if (event->type() == QEvent::MouseMove) {
-            auto *e = static_cast<QMouseEvent*>(event);
 
-            // Si el botón derecho está presionado Y tenemos un objeto de línea
-            if (e->buttons() & Qt::RightButton && m_currentLineItem) {
-                QPointF p2 = ui->graphicsView->mapToScene(e->pos());
-                // Redibujar la línea continuamente hasta la posición actual del ratón
-                m_currentLineItem->setLine(QLineF(m_lineStart, p2));
-                return true;
+        // --- MODO LÍNEA (DIBUJAR CON BOTÓN DERECHO) ---
+        if (m_currentMode == LINE_MODE) {
+            if (event->type() == QEvent::MouseButtonPress) {
+                auto *e = static_cast<QMouseEvent*>(event);
+                if (e->button() == Qt::RightButton) {
+                    m_lineStart = ui->graphicsView->mapToScene(e->pos());
+                    m_currentLineItem = new QGraphicsLineItem();
+                    m_currentLineItem->setZValue(10);
+
+                    // Color global para la línea
+                    m_currentLineItem->setPen(QPen(m_currentDrawingColor, 2));
+
+                    m_currentLineItem->setLine(QLineF(m_lineStart, m_lineStart));
+                    ui->graphicsView->scene()->addItem(m_currentLineItem);
+                    return true;
+                }
             }
-        }
-        else if (event->type() == QEvent::MouseButtonRelease) {
-            auto *e = static_cast<QMouseEvent*>(event);
-
-            // Al soltar el botón derecho, la línea se finaliza
-            if (e->button() == Qt::RightButton && m_currentLineItem) {
-                // Aquí se podría guardar la línea final o validar la longitud
-                m_currentLineItem = nullptr; // La línea ya está en la escena, solo liberamos el puntero temporal
-                return true;
+            else if (event->type() == QEvent::MouseMove) {
+                auto *e = static_cast<QMouseEvent*>(event);
+                if (e->buttons() & Qt::RightButton && m_currentLineItem) {
+                    QPointF p2 = ui->graphicsView->mapToScene(e->pos());
+                    m_currentLineItem->setLine(QLineF(m_lineStart, p2));
+                    return true;
+                }
+            }
+            else if (event->type() == QEvent::MouseButtonRelease) {
+                auto *e = static_cast<QMouseEvent*>(event);
+                if (e->button() == Qt::RightButton && m_currentLineItem) {
+                    m_currentLineItem = nullptr;
+                    return true;
+                }
             }
         }
     }
 
-    // Si el evento no fue manejado por nuestra lógica de dibujo, lo pasamos al padre
     return QMainWindow::eventFilter(obj, event);
 }
