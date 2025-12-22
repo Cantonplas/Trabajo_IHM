@@ -17,6 +17,9 @@
 #include <QPainter>
 #include <QSvgRenderer>
 #include <QFileDialog>
+#include <QInputDialog>
+#include <QLineEdit>
+
 
 MainWindow::MainWindow(User* currentUser, QWidget *parent)
     : QMainWindow(parent)
@@ -245,8 +248,12 @@ void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&
             m_rulerItem = new RulerItem(pixmap, &m_currentDrawingColor);
             item = m_rulerItem;
         } else {
+            // ✅ TRANSPORTADOR: que escale con el zoom (como la regla)
             item = new QGraphicsPixmapItem(pixmap);
-            item->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges | QGraphicsItem::ItemIgnoresTransformations);
+            item->setFlags(QGraphicsItem::ItemIsMovable |
+                           QGraphicsItem::ItemSendsGeometryChanges);
+            item->setFlag(QGraphicsItem::ItemIgnoresTransformations, false); // ✅ clave
+            item->setTransformOriginPoint(item->boundingRect().center());
         }
 
         m_scene->addItem(item);
@@ -254,6 +261,7 @@ void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&
         item->setPos(center - QPointF(renderSize.width()/2, renderSize.height()/2));
     }
     item->setVisible(true);
+
 }
 // =========================================================================
 // SLOTS PARA LA BARRA DE HERRAMIENTAS
@@ -310,9 +318,7 @@ void MainWindow::on_btnClearMap_clicked()
 
         for (QGraphicsItem* item : m_scene->items()) {
             // Identificamos el mapa base
-            bool isMapBase = (qgraphicsitem_cast<QGraphicsPixmapItem*>(item) != nullptr &&
-                              item != m_protractorItem &&
-                              item != m_rulerItem);
+            bool isMapBase = (item == m_mapItem);
 
             // AÑADIMOS EL COMPÁS A LA LISTA DE HERRAMIENTAS PROTEGIDAS
             bool isSvgTool = (item == m_protractorItem ||
@@ -354,10 +360,13 @@ void MainWindow::loadChart()
         qDebug() << "Error: No se pudo cargar la imagen del mapa.";
         return;
     }
-    QGraphicsPixmapItem *item = m_scene->addPixmap(pixmap);
+    m_mapItem = m_scene->addPixmap(pixmap);
+    m_mapItem->setZValue(0);
+
     m_scene->setSceneRect(pixmap.rect());
+    ui->graphicsView->resetTransform();
     ui->graphicsView->scale(0.4, 0.4);
-    ui->graphicsView->centerOn(item->boundingRect().center());
+    ui->graphicsView->centerOn(m_mapItem->boundingRect().center());
 }
 
 void MainWindow::setupProblemUI(int index)
@@ -465,81 +474,163 @@ void MainWindow::setDrawLineMode(bool enabled)
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == ui->graphicsView->viewport()) {
-        // Solo procesamos eventos de ratón
-        if (event->type() == QEvent::MouseButtonPress ||
-            event->type() == QEvent::MouseMove ||
-            event->type() == QEvent::MouseButtonRelease) {
+    if (obj != ui->graphicsView->viewport())
+        return QMainWindow::eventFilter(obj, event);
 
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-            QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());
+    // Solo eventos de ratón
+    if (event->type() != QEvent::MouseButtonPress &&
+        event->type() != QEvent::MouseMove &&
+        event->type() != QEvent::MouseButtonRelease)
+        return QMainWindow::eventFilter(obj, event);
 
-            // --- 1. PRIORIDAD: EXCEPCIONES (Regla y Compás) ---
-            // Si el ratón está sobre la regla, dejamos que la regla lo maneje
-            if (m_rulerItem && m_rulerItem->isVisible()) {
-                if (ui->graphicsView->itemAt(mouseEvent->pos()) == m_rulerItem) {
-                    return false;
-                }
-            }
+    QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+    QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());
 
-            // Si el ratón está sobre el compás, dejamos que el compás lo maneje
-            if (m_compassItem && m_compassItem->isVisible()) {
-                if (m_compassItem->contains(m_compassItem->mapFromScene(scenePos))) {
-                    return false;
-                }
-            }
+    // =====================================================
+    // 1. PRIORIDAD: herramientas que gestionan su propio ratón
+    // =====================================================
 
-            // --- 2. LÓGICA DE DIBUJO (Solo con Botón Derecho) ---
-            if (mouseEvent->button() == Qt::RightButton || (mouseEvent->buttons() & Qt::RightButton)) {
-
-                // MODO PUNTO
-                if (m_currentMode == POINT_MODE && event->type() == QEvent::MouseButtonPress) {
-                    qreal r = 3.0;
-                    QGraphicsEllipseItem *point = m_scene->addEllipse(scenePos.x()-r, scenePos.y()-r, r*2, r*2,
-                                                                      QPen(Qt::transparent), QBrush(m_currentDrawingColor));
-                    point->setZValue(10);
-                    return true;
-                }
-
-                // MODO LÍNEA Y ARCO (Dibujo dinámico)
-                if (event->type() == QEvent::MouseButtonPress) {
-                    if (m_currentMode == LINE_MODE) {
-                        m_lineStart = scenePos;
-                        m_currentLineItem = new QGraphicsLineItem(QLineF(m_lineStart, m_lineStart));
-                        m_currentLineItem->setPen(QPen(m_currentDrawingColor, 2));
-                        m_currentLineItem->setZValue(10);
-                        m_scene->addItem(m_currentLineItem);
-                        return true;
-                    }
-                }
-                else if (event->type() == QEvent::MouseMove) {
-                    if (m_currentMode == LINE_MODE && m_currentLineItem) {
-                        m_currentLineItem->setLine(QLineF(m_lineStart, scenePos));
-                        return true;
-                    }
-                }
-                else if (event->type() == QEvent::MouseButtonRelease) {
-                    m_currentLineItem = nullptr;
-                    m_currentArcItem = nullptr;
-                    return true;
-                }
-
-                // MODO COORDENADAS (JUAN)
-                if (m_currentMode == COORDINATES_MODE && event->type() == QEvent::MouseButtonPress) {
-                    QRectF rect = m_scene->sceneRect();
-                    if (m_hLine) { m_scene->removeItem(m_hLine); delete m_hLine; }
-                    if (m_vLine) { m_scene->removeItem(m_vLine); delete m_vLine; }
-
-                    m_hLine = m_scene->addLine(rect.left(), scenePos.y(), rect.right(), scenePos.y(),
-                                               QPen(m_currentDrawingColor, 1, Qt::DashLine));
-                    m_vLine = m_scene->addLine(scenePos.x(), rect.top(), scenePos.x(), rect.bottom(),
-                                               QPen(m_currentDrawingColor, 1, Qt::DashLine));
-                    m_hLine->setZValue(15);
-                    m_vLine->setZValue(15);
-                    return true;
-                }
-            }
+    // Regla
+    if (m_rulerItem && m_rulerItem->isVisible()) {
+        if (ui->graphicsView->itemAt(mouseEvent->pos()) == m_rulerItem) {
+            return false;
         }
     }
-    return QMainWindow::eventFilter(obj, event);
+
+    // Compás
+    if (m_compassItem && m_compassItem->isVisible()) {
+        if (m_compassItem->contains(m_compassItem->mapFromScene(scenePos))) {
+            return false;
+        }
+    }
+
+    // =====================================================
+    // 2. SOLO BOTÓN DERECHO PARA DIBUJAR / EDITAR
+    // =====================================================
+    if (!(mouseEvent->button() == Qt::RightButton ||
+          (mouseEvent->buttons() & Qt::RightButton)))
+        return false;
+
+    // =====================================================
+    // 3. MODO PUNTO
+    // =====================================================
+    if (m_currentMode == POINT_MODE &&
+        event->type() == QEvent::MouseButtonPress) {
+
+        qreal r = 3.0;
+        QGraphicsEllipseItem *point =
+            m_scene->addEllipse(scenePos.x() - r, scenePos.y() - r,
+                                r * 2, r * 2,
+                                QPen(Qt::transparent),
+                                QBrush(m_currentDrawingColor));
+        point->setZValue(10);
+        return true;
+    }
+
+    // =====================================================
+    // 4. MODO LÍNEA
+    // =====================================================
+    if (m_currentMode == LINE_MODE) {
+
+        if (event->type() == QEvent::MouseButtonPress) {
+            m_lineStart = scenePos;
+            m_currentLineItem = new QGraphicsLineItem(QLineF(scenePos, scenePos));
+            m_currentLineItem->setPen(QPen(m_currentDrawingColor, 2));
+            m_currentLineItem->setZValue(10);
+            m_scene->addItem(m_currentLineItem);
+            return true;
+        }
+
+        if (event->type() == QEvent::MouseMove && m_currentLineItem) {
+            m_currentLineItem->setLine(QLineF(m_lineStart, scenePos));
+            return true;
+        }
+
+        if (event->type() == QEvent::MouseButtonRelease) {
+            m_currentLineItem = nullptr;
+            return true;
+        }
+    }
+
+    // =====================================================
+    // 5. MODO TEXTO (3.4)
+    // =====================================================
+    if (m_currentMode == TEXT_MODE &&
+        event->type() == QEvent::MouseButtonPress) {
+
+        bool ok = false;
+        QString text = QInputDialog::getText(
+            this,
+            "Anotar texto",
+            "Introduce el texto:",
+            QLineEdit::Normal,
+            "",
+            &ok
+            );
+
+        text = text.trimmed();
+        if (ok && !text.isEmpty()) {
+            QGraphicsTextItem *txtItem =
+                m_scene->addText(text, QFont("Arial", 14));
+            txtItem->setDefaultTextColor(m_currentDrawingColor);
+            txtItem->setPos(scenePos);
+            txtItem->setZValue(10);
+            txtItem->setFlags(QGraphicsItem::ItemIsMovable |
+                              QGraphicsItem::ItemIsSelectable);
+        }
+        return true;
+    }
+
+    // =====================================================
+    // 6. MODO GOMA (3.6)
+    // =====================================================
+    if (m_currentMode == ERASER_MODE &&
+        event->type() == QEvent::MouseButtonPress) {
+
+        QList<QGraphicsItem*> items =
+            m_scene->items(scenePos,
+                           Qt::IntersectsItemShape,
+                           Qt::DescendingOrder,
+                           ui->graphicsView->transform());
+
+        for (QGraphicsItem *it : items) {
+
+            // No borrar mapa ni herramientas
+            if (it == m_mapItem) continue;
+            if (it == m_protractorItem) continue;
+            if (it == m_rulerItem) continue;
+            if (it == m_compassItem) continue;
+
+            m_scene->removeItem(it);
+            delete it;
+            break; // solo uno
+        }
+        return true;
+    }
+
+    // =====================================================
+    // 7. MODO COORDENADAS
+    // =====================================================
+    if (m_currentMode == COORDINATES_MODE &&
+        event->type() == QEvent::MouseButtonPress) {
+
+        QRectF rect = m_scene->sceneRect();
+
+        if (m_hLine) { m_scene->removeItem(m_hLine); delete m_hLine; }
+        if (m_vLine) { m_scene->removeItem(m_vLine); delete m_vLine; }
+
+        m_hLine = m_scene->addLine(rect.left(), scenePos.y(),
+                                   rect.right(), scenePos.y(),
+                                   QPen(m_currentDrawingColor, 1, Qt::DashLine));
+
+        m_vLine = m_scene->addLine(scenePos.x(), rect.top(),
+                                   scenePos.x(), rect.bottom(),
+                                   QPen(m_currentDrawingColor, 1, Qt::DashLine));
+
+        m_hLine->setZValue(15);
+        m_vLine->setZValue(15);
+        return true;
+    }
+
+    return false;
 }

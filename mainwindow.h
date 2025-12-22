@@ -181,8 +181,9 @@ private:
     QButtonGroup *m_answerGroup;
 
 
-    int m_sessionHits;
-    int m_sessionFaults;
+    int m_sessionHits = 0;
+    int m_sessionFaults = 0;
+    QGraphicsPixmapItem *m_mapItem = nullptr;
     QDateTime m_sessionStart;
     void saveCurrentSession();
     void updateAvatarUI();
