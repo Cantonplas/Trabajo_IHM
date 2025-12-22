@@ -117,7 +117,6 @@ void MainWindow::on_btnRandom_clicked()
 }
 
 void MainWindow::on_btnShowCoordinates_clicked(bool checked) {
-    // Tu lógica de coordenadas
 }
 
 void MainWindow::on_btnAvatar_clicked()
@@ -211,10 +210,9 @@ void MainWindow::setupToolModes()
 }
 
 
-// --- DENTRO DE mainwindow.cpp ---
 void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&item)
 {
-    // CASO ESPECIAL: COMPÁS
+    //COmpás
     if (resourcePath.contains("compass_leg")) {
         if (!m_compassItem) {
             QSvgRenderer renderer(resourcePath);
@@ -231,10 +229,10 @@ void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&
             m_compassItem->setPos(center);
         }
         m_compassItem->setVisible(true);
-        return; // Salimos para no ejecutar la lógica de PixmapItems
+        return;
     }
 
-    // CASO NORMAL: REGLA Y TRANSPORTADOR
+    //regla y transporatodr:
     if (!item) {
         QSvgRenderer renderer(resourcePath);
         QSize renderSize = resourcePath.contains("ruler") ? QSize(1000, 80) : QSize(500, 500);
@@ -248,7 +246,6 @@ void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&
             m_rulerItem = new RulerItem(pixmap, &m_currentDrawingColor);
             item = m_rulerItem;
         } else {
-            // ✅ TRANSPORTADOR: que escale con el zoom (como la regla)
             item = new QGraphicsPixmapItem(pixmap);
             item->setFlags(QGraphicsItem::ItemIsMovable |
                            QGraphicsItem::ItemSendsGeometryChanges);
@@ -263,9 +260,7 @@ void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&
     item->setVisible(true);
 
 }
-// =========================================================================
-// SLOTS PARA LA BARRA DE HERRAMIENTAS
-// =========================================================================
+
 
 void MainWindow::onToolModeToggled(QAbstractButton *button, bool checked)
 {
@@ -320,10 +315,9 @@ void MainWindow::on_btnClearMap_clicked()
             // Identificamos el mapa base
             bool isMapBase = (item == m_mapItem);
 
-            // AÑADIMOS EL COMPÁS A LA LISTA DE HERRAMIENTAS PROTEGIDAS
             bool isSvgTool = (item == m_protractorItem ||
                               item == m_rulerItem ||
-                              item == m_compassItem); // <--- PROTECCIÓN AQUÍ
+                              item == m_compassItem);
 
             if (!isMapBase && !isSvgTool) {
                 itemsToRemove.append(item);
@@ -344,7 +338,6 @@ void MainWindow::on_btnClearMap_clicked()
 
 void MainWindow::on_btnChangeColor_clicked()
 {
-    // ACTUALIZADO: Selector de color para la variable global m_currentDrawingColor
     QColor newColor = QColorDialog::getColor(m_currentDrawingColor, this, "Seleccione el color para las marcas");
 
     if (newColor.isValid()) {
@@ -422,7 +415,6 @@ void MainWindow::on_btnCheck_clicked()
             m_sessionFaults++;
             QMessageBox::critical(this, "Incorrecto", "Esa no es la respuesta correcta.");
         }
-        // ---------------------------------------------------------
     }
 }
 
@@ -486,10 +478,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
     QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());
 
-    // =====================================================
-    // 1. PRIORIDAD: herramientas que gestionan su propio ratón
-    // =====================================================
-
     // Regla
     if (m_rulerItem && m_rulerItem->isVisible()) {
         if (ui->graphicsView->itemAt(mouseEvent->pos()) == m_rulerItem) {
@@ -504,16 +492,13 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
     }
 
-    // =====================================================
-    // 2. SOLO BOTÓN DERECHO PARA DIBUJAR / EDITAR
-    // =====================================================
+    // Solo boton derecho para dibujar y editar
+
     if (!(mouseEvent->button() == Qt::RightButton ||
           (mouseEvent->buttons() & Qt::RightButton)))
         return false;
 
-    // =====================================================
-    // 3. MODO PUNTO
-    // =====================================================
+   // Punto
     if (m_currentMode == POINT_MODE &&
         event->type() == QEvent::MouseButtonPress) {
 
@@ -527,9 +512,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         return true;
     }
 
-    // =====================================================
-    // 4. MODO LÍNEA
-    // =====================================================
+    //Linea
     if (m_currentMode == LINE_MODE) {
 
         if (event->type() == QEvent::MouseButtonPress) {
@@ -552,9 +535,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
     }
 
-    // =====================================================
-    // 5. MODO TEXTO (3.4)
-    // =====================================================
+    //Texto
     if (m_currentMode == TEXT_MODE &&
         event->type() == QEvent::MouseButtonPress) {
 
@@ -581,9 +562,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         return true;
     }
 
-    // =====================================================
-    // 6. MODO GOMA (3.6)
-    // =====================================================
+    //Goma:
     if (m_currentMode == ERASER_MODE &&
         event->type() == QEvent::MouseButtonPress) {
 
@@ -608,9 +587,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         return true;
     }
 
-    // =====================================================
-    // 7. MODO COORDENADAS
-    // =====================================================
+    //Coordenadas
     if (m_currentMode == COORDINATES_MODE &&
         event->type() == QEvent::MouseButtonPress) {
 

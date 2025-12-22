@@ -12,11 +12,9 @@ int main(int argc, char *argv[])
 
     QFile file(":/style.qss");
     if(file.open(QFile::ReadOnly | QFile::Text)) {
-        // 2. Leer el contenido
         QTextStream stream(&file);
         QString styleSheet = stream.readAll();
 
-        // 3. Aplicar el estilo a toda la aplicación
         a.setStyleSheet(styleSheet);
         file.close();
     }

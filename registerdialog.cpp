@@ -56,9 +56,7 @@ void RegisterDialog::on_btnSave_clicked()
         m_userToEdit->setEmail(email);
         m_userToEdit->setPassword(pass);
         m_userToEdit->setBirthdate(birth);
-        // El avatar lo dejamos igual por ahora
 
-        // Guardamos en la base de datos
         Navigation::instance().updateUser(*m_userToEdit);
         QMessageBox::information(this, "Éxito", "Perfil actualizado.");
     }
