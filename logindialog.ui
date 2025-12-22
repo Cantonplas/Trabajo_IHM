@@ -58,7 +58,7 @@
           <enum>Qt::LayoutDirection::LeftToRight</enum>
          </property>
          <property name="text">
-          <string>    Carta Náutica</string>
+          <string>Carta Náutica</string>
          </property>
         </widget>
        </item>

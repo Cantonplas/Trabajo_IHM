@@ -230,7 +230,8 @@ void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&
 
         // CREACIÓN ÚNICA: Decidimos qué objeto crear
         if (resourcePath.contains("ruler.svg")) {
-            m_rulerItem = new RulerItem(pixmap);
+            // CAMBIO AQUÍ: Pasamos &m_currentDrawingColor al constructor
+            m_rulerItem = new RulerItem(pixmap, &m_currentDrawingColor);
             item = m_rulerItem;
         } else {
             item = new QGraphicsPixmapItem(pixmap);
@@ -336,10 +337,12 @@ void MainWindow::on_btnClearMap_clicked()
 
 void MainWindow::on_btnChangeColor_clicked()
 {
-    QColor newColor = QColorDialog::getColor(Qt::red, this, "Seleccione el color para las marcas");
+    // ACTUALIZADO: Selector de color para la variable global m_currentDrawingColor
+    QColor newColor = QColorDialog::getColor(m_currentDrawingColor, this, "Seleccione el color para las marcas");
 
     if (newColor.isValid()) {
-        qDebug() << "Nuevo color seleccionado:" << newColor.name();
+        m_currentDrawingColor = newColor;
+        qDebug() << "Nuevo color seleccionado:" << m_currentDrawingColor.name();
     }
 }
 
@@ -454,23 +457,9 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     QMainWindow::closeEvent(event);
 }
-// =========================================================================
-// CÓDIGO AÑADIDO: Lógica de Dibujo de Líneas (Basado en el profesor)
-// =========================================================================
 
-// Esta función es necesaria para implementar la lógica del filtro de eventos
-// La mantenemos para compatibilidad si usas QAction toggled.
-// En tu caso, la activación del modo se realiza en onToolModeToggled.
 void MainWindow::setDrawLineMode(bool enabled)
 {
-    // Esta función no se usa directamente con tu sistema de botones,
-    // pero la dejamos si se usa un QAction por separado.
-    // La verdadera activación de modo ocurre en onToolModeToggled()
-
-    // Si la función fuera usada, aquí se activaría el modo y el cursor:
-    // m_drawLineMode = enabled;
-    // if (m_drawLineMode) view->setCursor(Qt::CrossCursor);
-    // else view->unsetCursor();
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
@@ -478,67 +467,96 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     // Solo filtramos eventos que vengan del área del mapa (viewport)
     if (obj == ui->graphicsView->viewport()) {
 
-        // Si no estamos en modo LÍNEA ni en modo ARCO, no hacemos nada y dejamos pasar el evento
-        if (m_currentMode != LINE_MODE && m_currentMode != ARC_MODE) {
-            return false;
+        // --- ARREGLO PARA LA REGLA ---
+        // Si el evento es de ratón, verificamos si la regla está debajo del puntero.
+        if (event->type() == QEvent::MouseButtonPress ||
+            event->type() == QEvent::MouseMove ||
+            event->type() == QEvent::MouseButtonRelease) {
+
+            QMouseEvent *e = static_cast<QMouseEvent*>(event);
+
+            // Si la regla existe y es visible...
+            if (m_rulerItem && m_rulerItem->isVisible()) {
+                // Buscamos qué hay exactamente bajo la posición del ratón
+                QGraphicsItem *itemUnderMouse = ui->graphicsView->itemAt(e->pos());
+
+                // Si lo que hay debajo es la regla, devolvemos 'false' para que el evento
+                // NO sea filtrado y llegue directamente a la clase RulerItem.
+                if (itemUnderMouse == m_rulerItem) {
+                    return false;
+                }
+            }
         }
 
-        // --- 1. CLIC DEL RATÓN ---
-        if (event->type() == QEvent::MouseButtonPress) {
+        // --- MODO PUNTO (BOTÓN DERECHO) ---
+        if (m_currentMode == POINT_MODE) {
+            if (event->type() == QEvent::MouseButtonPress) {
+                auto *e = static_cast<QMouseEvent*>(event);
+                if (e->button() == Qt::RightButton) {
+                    QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
+                    qreal radius = 3.0;
+                    QGraphicsEllipseItem *point = m_scene->addEllipse(
+                        scenePos.x() - radius, scenePos.y() - radius,
+                        radius * 2, radius * 2,
+                        QPen(Qt::transparent),
+                        QBrush(m_currentDrawingColor)
+                        );
+                    point->setZValue(10);
+                    return true;
+                }
+            }
+        }
+
+        // --- LÓGICA DE DIBUJO (LÍNEA Y ARCO CON BOTÓN DERECHO) ---
+        // Agrupamos los eventos de ratón para manejar el dibujo dinámico
+        if (event->type() == QEvent::MouseButtonPress ||
+            event->type() == QEvent::MouseMove ||
+            event->type() == QEvent::MouseButtonRelease) {
+
             auto *e = static_cast<QMouseEvent*>(event);
-            if (e->button() == Qt::RightButton) {
+
+            // Verificamos que se esté usando el botón derecho
+            if (e->button() == Qt::RightButton || (e->buttons() & Qt::RightButton)) {
                 QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
 
-                if (m_currentMode == LINE_MODE) {
-                    m_lineStart = scenePos;
-                    QPen pen(Qt::red, 2);
-                    m_currentLineItem = new QGraphicsLineItem();
-                    m_currentLineItem->setZValue(10);
-                    m_currentLineItem->setPen(pen);
-                    m_currentLineItem->setLine(QLineF(m_lineStart, m_lineStart));
-                    m_scene->addItem(m_currentLineItem);
+                // 1. CLIC DEL RATÓN: INICIAR DIBUJO
+                if (event->type() == QEvent::MouseButtonPress) {
+                    if (m_currentMode == LINE_MODE) {
+                        m_lineStart = scenePos;
+                        m_currentLineItem = new QGraphicsLineItem(QLineF(m_lineStart, m_lineStart));
+                        m_currentLineItem->setPen(QPen(m_currentDrawingColor, 2));
+                        m_currentLineItem->setZValue(10);
+                        m_scene->addItem(m_currentLineItem);
+                        return true;
+                    }
+                    else if (m_currentMode == ARC_MODE) {
+                        m_arcCenter = scenePos;
+                        m_currentArcItem = new QGraphicsEllipseItem(m_arcCenter.x(), m_arcCenter.y(), 0, 0);
+                        m_currentArcItem->setPen(QPen(m_currentDrawingColor, 2));
+                        m_currentArcItem->setZValue(10);
+                        m_scene->addItem(m_currentArcItem);
+                        return true;
+                    }
                 }
-                else if (m_currentMode == ARC_MODE) {
-                    m_arcCenter = scenePos;
-                    m_currentArcItem = new QGraphicsEllipseItem();
-                    QPen pen(Qt::red, 2);
-                    m_currentArcItem->setPen(pen);
-                    m_currentArcItem->setZValue(10);
-                    // Empezamos con un círculo de tamaño cero
-                    m_currentArcItem->setRect(m_arcCenter.x(), m_arcCenter.y(), 0, 0);
-                    m_scene->addItem(m_currentArcItem);
+                // 2. MOVIMIENTO DEL RATÓN: ACTUALIZAR DIBUJO EN TIEMPO REAL
+                else if (event->type() == QEvent::MouseMove) {
+                    if (m_currentMode == LINE_MODE && m_currentLineItem) {
+                        m_currentLineItem->setLine(QLineF(m_lineStart, scenePos));
+                        return true;
+                    }
+                    else if (m_currentMode == ARC_MODE && m_currentArcItem) {
+                        qreal radius = QLineF(m_arcCenter, scenePos).length();
+                        m_currentArcItem->setRect(m_arcCenter.x() - radius, m_arcCenter.y() - radius,
+                                                  radius * 2, radius * 2);
+                        return true;
+                    }
                 }
-                return true; // Indicamos que hemos manejado el evento
-            }
-        }
-        // --- 2. MOVIMIENTO DEL RATÓN ---
-        else if (event->type() == QEvent::MouseMove) {
-            auto *e = static_cast<QMouseEvent*>(event);
-            if (e->buttons() & Qt::RightButton) {
-                QPointF currentPos = ui->graphicsView->mapToScene(e->pos());
-
-                if (m_currentMode == LINE_MODE && m_currentLineItem) {
-                    m_currentLineItem->setLine(QLineF(m_lineStart, currentPos));
+                // 3. SOLTAR EL BOTÓN: FINALIZAR DIBUJO
+                else if (event->type() == QEvent::MouseButtonRelease) {
+                    m_currentLineItem = nullptr;
+                    m_currentArcItem = nullptr;
                     return true;
                 }
-                else if (m_currentMode == ARC_MODE && m_currentArcItem) {
-                    qreal radius = QLineF(m_arcCenter, currentPos).length();
-                    // Rectángulo: esquina sup. izq. (centro - radio) y diámetro (2*radio)
-                    m_currentArcItem->setRect(m_arcCenter.x() - radius,
-                                              m_arcCenter.y() - radius,
-                                              radius * 2,
-                                              radius * 2);
-                    return true;
-                }
-            }
-        }
-        // --- 3. SOLTAR EL BOTÓN ---
-        else if (event->type() == QEvent::MouseButtonRelease) {
-            auto *e = static_cast<QMouseEvent*>(event);
-            if (e->button() == Qt::RightButton) {
-                m_currentLineItem = nullptr;
-                m_currentArcItem = nullptr;
-                return true;
             }
         }
     }

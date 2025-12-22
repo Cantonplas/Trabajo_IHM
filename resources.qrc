@@ -15,5 +15,6 @@
         <file>resources/icons/T.svg</file>
         <file>resources/icons/eraser.svg</file>
         <file>resources/user_default.png</file>
+        <file>style.qss</file>
     </qresource>
 </RCC>

@@ -42,4 +42,5 @@ DISTFILES += \
     resources/icons/Punto.svg \
     resources/icons/compass_leg.svg \
     resources/icons/ruler.svg \
-    resources/icons/transportador.svg
+    resources/icons/transportador.svg \
+    style.qss
