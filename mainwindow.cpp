@@ -17,6 +17,10 @@
 #include <QPainter>
 #include <QSvgRenderer>
 #include <QFileDialog>
+#include <QInputDialog>
+#include <QGraphicsTextItem>
+#include <QFont>
+
 
 MainWindow::MainWindow(User* currentUser, QWidget *parent)
     : QMainWindow(parent)
@@ -305,9 +309,8 @@ void MainWindow::on_btnClearMap_clicked()
 
             // --- CÓDIGO CLAVE CORREGIDO ---
 
-            bool isMapBase = (qgraphicsitem_cast<QGraphicsPixmapItem*>(item) != nullptr &&
-                              item != m_protractorItem &&
-                              item != m_rulerItem);
+            bool isMapBase = (item == m_mapItem);
+
 
             bool isSvgTool = (item == m_protractorItem || item == m_rulerItem);
 
@@ -338,8 +341,10 @@ void MainWindow::on_btnChangeColor_clicked()
     QColor newColor = QColorDialog::getColor(Qt::red, this, "Seleccione el color para las marcas");
 
     if (newColor.isValid()) {
-        qDebug() << "Nuevo color seleccionado:" << newColor.name();
+        m_markColor = newColor;
+        qDebug() << "Nuevo color seleccionado:" << m_markColor.name();
     }
+
 }
 
 void MainWindow::loadChart()
@@ -349,10 +354,24 @@ void MainWindow::loadChart()
         qDebug() << "Error: No se pudo cargar la imagen del mapa.";
         return;
     }
-    QGraphicsPixmapItem *item = m_scene->addPixmap(pixmap);
+    // Si ya había mapa, lo quitamos
+    if (m_mapItem) {
+        m_scene->removeItem(m_mapItem);
+        delete m_mapItem;
+        m_mapItem = nullptr;
+    }
+
+    m_mapItem = m_scene->addPixmap(pixmap);
+    m_mapItem->setZValue(0); // mapa siempre abajo
+
     m_scene->setSceneRect(pixmap.rect());
+
+    // (opcional pero recomendable) reset del zoom para que no se acumule
+    ui->graphicsView->resetTransform();
     ui->graphicsView->scale(0.4, 0.4);
-    ui->graphicsView->centerOn(item->boundingRect().center());
+
+    ui->graphicsView->centerOn(m_mapItem->boundingRect().center());
+
 }
 
 void MainWindow::setupProblemUI(int index)
@@ -474,42 +493,37 @@ void MainWindow::setDrawLineMode(bool enabled)
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    // En tu implementación, 'obj' será ui->graphicsView->viewport()
-    if (obj == ui->graphicsView->viewport()) {
+    if (obj != ui->graphicsView->viewport())
+        return QMainWindow::eventFilter(obj, event);
 
-        // Adaptación: Sustituimos m_drawLineMode por m_currentMode == LINE_MODE
-        if (m_currentMode != LINE_MODE)
-            return false; // No estamos en modo línea, dejamos que la vista lo gestione (e.g., arrastre)
+    // =========================
+    // 1) MODO LINEA (ya lo tenías)
+    // =========================
+    if (m_currentMode == LINE_MODE) {
 
         if (event->type() == QEvent::MouseButtonPress) {
             auto *e = static_cast<QMouseEvent*>(event);
 
-            // Usar el botón derecho para iniciar la línea (como en el código del profesor)
+            // Botón derecho para iniciar línea (estilo prácticas)
             if (e->button() == Qt::RightButton) {
                 QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
-                m_lineStart = scenePos; // Guardar punto de inicio
+                m_lineStart = scenePos;
 
-                // Usamos un QPen (debes definir el color actual de dibujo)
-                QPen pen(Qt::red, 2); // Usamos un grosor menor para el dibujo final
+                QPen pen(m_markColor, 2);
                 m_currentLineItem = new QGraphicsLineItem();
-
-                m_currentLineItem->setZValue(10); // Aseguramos que esté por encima del mapa
+                m_currentLineItem->setZValue(10);
                 m_currentLineItem->setPen(pen);
-
-                // Inicializamos la línea como un punto
                 m_currentLineItem->setLine(QLineF(m_lineStart, m_lineStart));
-                ui->graphicsView->scene()->addItem(m_currentLineItem);
+                m_scene->addItem(m_currentLineItem);
 
-                return true; // Consumimos el evento
+                return true;
             }
         }
         else if (event->type() == QEvent::MouseMove) {
             auto *e = static_cast<QMouseEvent*>(event);
 
-            // Si el botón derecho está presionado Y tenemos un objeto de línea
-            if (e->buttons() & Qt::RightButton && m_currentLineItem) {
+            if ((e->buttons() & Qt::RightButton) && m_currentLineItem) {
                 QPointF p2 = ui->graphicsView->mapToScene(e->pos());
-                // Redibujar la línea continuamente hasta la posición actual del ratón
                 m_currentLineItem->setLine(QLineF(m_lineStart, p2));
                 return true;
             }
@@ -517,15 +531,95 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         else if (event->type() == QEvent::MouseButtonRelease) {
             auto *e = static_cast<QMouseEvent*>(event);
 
-            // Al soltar el botón derecho, la línea se finaliza
             if (e->button() == Qt::RightButton && m_currentLineItem) {
-                // Aquí se podría guardar la línea final o validar la longitud
-                m_currentLineItem = nullptr; // La línea ya está en la escena, solo liberamos el puntero temporal
+                m_currentLineItem = nullptr;
                 return true;
             }
         }
+
+        return false;
     }
 
-    // Si el evento no fue manejado por nuestra lógica de dibujo, lo pasamos al padre
+    // =========================
+    // 2) 3.4 ANOTAR TEXTO
+    // =========================
+    if (m_currentMode == TEXT_MODE) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            auto *e = static_cast<QMouseEvent*>(event);
+
+            if (e->button() == Qt::RightButton) {
+                QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
+
+                bool ok = false;
+                QString txt = QInputDialog::getText(
+                    this,
+                    "Anotar texto",
+                    "Escribe el texto:",
+                    QLineEdit::Normal,
+                    "",
+                    &ok
+                    );
+
+                txt = txt.trimmed();
+                if (ok && !txt.isEmpty()) {
+                    QGraphicsTextItem *t = m_scene->addText(txt, QFont("Arial", 14));
+                    t->setDefaultTextColor(m_markColor);
+                    t->setZValue(10);
+                    t->setPos(scenePos);
+
+                    t->setFlags(QGraphicsItem::ItemIsMovable |
+                                QGraphicsItem::ItemIsSelectable);
+
+                    // Si quieres que sea editable al click:
+                    t->setTextInteractionFlags(Qt::TextEditorInteraction);
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // =========================
+    // 3) 3.6 GOMA (BORRAR MARCA)
+    // =========================
+    if (m_currentMode == ERASER_MODE) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            auto *e = static_cast<QMouseEvent*>(event);
+
+            if (e->button() == Qt::RightButton) {
+                QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
+
+                // Items bajo el cursor (de arriba a abajo)
+                QList<QGraphicsItem*> items =
+                    m_scene->items(scenePos,
+                                   Qt::IntersectsItemShape,
+                                   Qt::DescendingOrder,
+                                   ui->graphicsView->transform());
+
+                for (QGraphicsItem *it : items) {
+
+                    // No borrar mapa base ni herramientas
+                    if (it == m_mapItem) continue;
+                    if (it == m_protractorItem) continue;
+                    if (it == m_rulerItem) continue;
+
+                    // Si estás dibujando una línea ahora mismo, no la borres a mitad
+                    if (it == m_currentLineItem) continue;
+
+                    m_scene->removeItem(it);
+                    delete it;
+                    break;
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Otros modos -> dejar que la vista gestione (mover herramientas, etc.)
     return QMainWindow::eventFilter(obj, event);
 }

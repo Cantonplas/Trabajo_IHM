@@ -18,6 +18,8 @@
 #include "statsdialog.h"
 #include <QMenu>
 #include <QDateTime>
+#include <QColor>
+
 
 enum DrawMode {
     NONE,
@@ -69,9 +71,11 @@ private:
     QButtonGroup *m_answerGroup;
 
 
-    int m_sessionHits;
-    int m_sessionFaults;
+    int m_sessionHits = 0;
+    int m_sessionFaults = 0;
     QDateTime m_sessionStart;
+    QColor m_markColor = Qt::red;
+    QGraphicsPixmapItem *m_mapItem = nullptr;
     void saveCurrentSession();
     void updateAvatarUI();
 
