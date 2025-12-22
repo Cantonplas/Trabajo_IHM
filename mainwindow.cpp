@@ -211,43 +211,48 @@ void MainWindow::setupToolModes()
 // --- DENTRO DE mainwindow.cpp ---
 void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&item)
 {
+    // CASO ESPECIAL: COMPÁS
+    if (resourcePath.contains("compass_leg")) {
+        if (!m_compassItem) {
+            QSvgRenderer renderer(resourcePath);
+            QSize renderSize(10, 250);
+            QPixmap pixmap(renderSize);
+            pixmap.fill(Qt::transparent);
+            QPainter painter(&pixmap);
+            renderer.render(&painter);
+
+            m_compassItem = new CompassItem(pixmap, &m_currentDrawingColor);
+            m_scene->addItem(m_compassItem);
+
+            QPointF center = ui->graphicsView->mapToScene(ui->graphicsView->viewport()->rect().center());
+            m_compassItem->setPos(center);
+        }
+        m_compassItem->setVisible(true);
+        return; // Salimos para no ejecutar la lógica de PixmapItems
+    }
+
+    // CASO NORMAL: REGLA Y TRANSPORTADOR
     if (!item) {
         QSvgRenderer renderer(resourcePath);
-        QSize renderSize;
-
-        if (resourcePath.contains("ruler.svg")) {
-            renderSize = QSize(1000, 80);
-        } else if (resourcePath.contains("transportador.svg")) {
-            renderSize = QSize(500, 500);
-        } else {
-            renderSize = QSize(100, 100);
-        }
+        QSize renderSize = resourcePath.contains("ruler") ? QSize(1000, 80) : QSize(500, 500);
 
         QPixmap pixmap(renderSize);
         pixmap.fill(Qt::transparent);
         QPainter painter(&pixmap);
         renderer.render(&painter);
 
-        // CREACIÓN ÚNICA: Decidimos qué objeto crear
-        if (resourcePath.contains("ruler.svg")) {
-            // CAMBIO AQUÍ: Pasamos &m_currentDrawingColor al constructor
+        if (resourcePath.contains("ruler")) {
             m_rulerItem = new RulerItem(pixmap, &m_currentDrawingColor);
             item = m_rulerItem;
         } else {
             item = new QGraphicsPixmapItem(pixmap);
-            // El transportador suele preferirse con tamaño fijo, por eso dejamos este flag
-            item->setFlags(QGraphicsItem::ItemIsMovable |
-                           QGraphicsItem::ItemSendsGeometryChanges |
-                           QGraphicsItem::ItemIgnoresTransformations);
+            item->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges | QGraphicsItem::ItemIgnoresTransformations);
         }
 
         m_scene->addItem(item);
-
-        // Posicionamiento inicial en el centro de la vista
         QPointF center = ui->graphicsView->mapToScene(ui->graphicsView->viewport()->rect().center());
         item->setPos(center - QPointF(renderSize.width()/2, renderSize.height()/2));
     }
-
     item->setVisible(true);
 }
 // =========================================================================
@@ -256,9 +261,13 @@ void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&
 
 void MainWindow::onToolModeToggled(QAbstractButton *button, bool checked)
 {
-    // Ocultar todas las herramientas arrastrables al cambiar de modo
     if (m_protractorItem) m_protractorItem->setVisible(false);
     if (m_rulerItem) m_rulerItem->setVisible(false);
+    if (m_compassItem) m_compassItem->setVisible(false);
+
+    // Si Juan cambia de herramienta, borramos las líneas de coordenadas anteriores
+    if (m_hLine) { m_scene->removeItem(m_hLine); delete m_hLine; m_hLine = nullptr; }
+    if (m_vLine) { m_scene->removeItem(m_vLine); delete m_vLine; m_vLine = nullptr; }
 
     m_currentMode = NONE;
 
@@ -267,57 +276,52 @@ void MainWindow::onToolModeToggled(QAbstractButton *button, bool checked)
             m_currentMode = POINT_MODE;
         } else if (button == ui->btnDrawLine) {
             m_currentMode = LINE_MODE;
-        } else if (button == ui->btnDrawArc) {
-            m_currentMode = ARC_MODE;
         } else if (button == ui->btnAnnotateText) {
             m_currentMode = TEXT_MODE;
         } else if (button == ui->btnEraser) {
             m_currentMode = ERASER_MODE;
-        }
-
-        // 3.8/3.9: Mostrar/crear la herramienta SVG arrastrable (como PixmapItem)
-        else if (button == ui->btnProtractor) {
+        } else if (button == ui->btnProtractor) {
             m_currentMode = PROTRACTOR_MODE;
             showSvgTool(":/resources/icons/transportador.svg", m_protractorItem);
-
         } else if (button == ui->btnRulerDistance) {
             m_currentMode = RULER_MODE;
             showSvgTool(":/resources/icons/ruler.svg", m_rulerItem);
         }
+        // AÑADE ESTO:
+        else if (button == ui->btnShowCoordinates) {
+            m_currentMode = COORDINATES_MODE;
+        }
+        else if (button == ui->btnDrawArc) {
+            m_currentMode = ARC_MODE;
+            showSvgTool(":/resources/icons/compass_leg.svg", (QGraphicsPixmapItem*&)m_compassItem);
+        }
     }
-
-    qDebug() << "Modo de Herramienta actual:" << m_currentMode;
 }
 
 void MainWindow::on_btnClearMap_clicked()
 {
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Confirmar Limpieza",
-                                  "¿Está seguro de que desea limpiar todas las marcas de la carta?",
+                                  "¿Está seguro de que desea limpiar todas las marcas?",
                                   QMessageBox::Yes|QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
         QList<QGraphicsItem*> itemsToRemove;
 
         for (QGraphicsItem* item : m_scene->items()) {
-
-            // 1. Identificar el mapa base: Asumimos que es el único QGraphicsPixmapItem que NO es una herramienta.
-            // Si el mapa base es el primer QGraphicsItem añadido, podemos asumir que es el primer elemento de la escena
-            // o que es el único QGraphicsPixmapItem que no tiene las banderas de tool.
-
-            // --- CÓDIGO CLAVE CORREGIDO ---
-
+            // Identificamos el mapa base
             bool isMapBase = (qgraphicsitem_cast<QGraphicsPixmapItem*>(item) != nullptr &&
                               item != m_protractorItem &&
                               item != m_rulerItem);
 
-            bool isSvgTool = (item == m_protractorItem || item == m_rulerItem);
+            // AÑADIMOS EL COMPÁS A LA LISTA DE HERRAMIENTAS PROTEGIDAS
+            bool isSvgTool = (item == m_protractorItem ||
+                              item == m_rulerItem ||
+                              item == m_compassItem); // <--- PROTECCIÓN AQUÍ
 
-            // Si el ítem NO es el mapa base Y NO es una de las herramientas SVG, se ELIMINA.
             if (!isMapBase && !isSvgTool) {
                 itemsToRemove.append(item);
             }
-            // -----------------------------
         }
 
         for (QGraphicsItem* item : itemsToRemove) {
@@ -325,13 +329,10 @@ void MainWindow::on_btnClearMap_clicked()
             delete item;
         }
 
-        // Si hay un modo de herramienta activo, lo desactiva.
         if (m_toolGroup->checkedButton()) {
             m_toolGroup->checkedButton()->setChecked(false);
             m_currentMode = NONE;
         }
-
-        qDebug() << "Carta limpiada (3.7).";
     }
 }
 
@@ -464,62 +465,43 @@ void MainWindow::setDrawLineMode(bool enabled)
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    // Solo filtramos eventos que vengan del área del mapa (viewport)
     if (obj == ui->graphicsView->viewport()) {
-
-        // --- ARREGLO PARA LA REGLA ---
-        // Si el evento es de ratón, verificamos si la regla está debajo del puntero.
+        // Solo procesamos eventos de ratón
         if (event->type() == QEvent::MouseButtonPress ||
             event->type() == QEvent::MouseMove ||
             event->type() == QEvent::MouseButtonRelease) {
 
-            QMouseEvent *e = static_cast<QMouseEvent*>(event);
+            QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+            QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());
 
-            // Si la regla existe y es visible...
+            // --- 1. PRIORIDAD: EXCEPCIONES (Regla y Compás) ---
+            // Si el ratón está sobre la regla, dejamos que la regla lo maneje
             if (m_rulerItem && m_rulerItem->isVisible()) {
-                // Buscamos qué hay exactamente bajo la posición del ratón
-                QGraphicsItem *itemUnderMouse = ui->graphicsView->itemAt(e->pos());
-
-                // Si lo que hay debajo es la regla, devolvemos 'false' para que el evento
-                // NO sea filtrado y llegue directamente a la clase RulerItem.
-                if (itemUnderMouse == m_rulerItem) {
+                if (ui->graphicsView->itemAt(mouseEvent->pos()) == m_rulerItem) {
                     return false;
                 }
             }
-        }
 
-        // --- MODO PUNTO (BOTÓN DERECHO) ---
-        if (m_currentMode == POINT_MODE) {
-            if (event->type() == QEvent::MouseButtonPress) {
-                auto *e = static_cast<QMouseEvent*>(event);
-                if (e->button() == Qt::RightButton) {
-                    QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
-                    qreal radius = 3.0;
-                    QGraphicsEllipseItem *point = m_scene->addEllipse(
-                        scenePos.x() - radius, scenePos.y() - radius,
-                        radius * 2, radius * 2,
-                        QPen(Qt::transparent),
-                        QBrush(m_currentDrawingColor)
-                        );
+            // Si el ratón está sobre el compás, dejamos que el compás lo maneje
+            if (m_compassItem && m_compassItem->isVisible()) {
+                if (m_compassItem->contains(m_compassItem->mapFromScene(scenePos))) {
+                    return false;
+                }
+            }
+
+            // --- 2. LÓGICA DE DIBUJO (Solo con Botón Derecho) ---
+            if (mouseEvent->button() == Qt::RightButton || (mouseEvent->buttons() & Qt::RightButton)) {
+
+                // MODO PUNTO
+                if (m_currentMode == POINT_MODE && event->type() == QEvent::MouseButtonPress) {
+                    qreal r = 3.0;
+                    QGraphicsEllipseItem *point = m_scene->addEllipse(scenePos.x()-r, scenePos.y()-r, r*2, r*2,
+                                                                      QPen(Qt::transparent), QBrush(m_currentDrawingColor));
                     point->setZValue(10);
                     return true;
                 }
-            }
-        }
 
-        // --- LÓGICA DE DIBUJO (LÍNEA Y ARCO CON BOTÓN DERECHO) ---
-        // Agrupamos los eventos de ratón para manejar el dibujo dinámico
-        if (event->type() == QEvent::MouseButtonPress ||
-            event->type() == QEvent::MouseMove ||
-            event->type() == QEvent::MouseButtonRelease) {
-
-            auto *e = static_cast<QMouseEvent*>(event);
-
-            // Verificamos que se esté usando el botón derecho
-            if (e->button() == Qt::RightButton || (e->buttons() & Qt::RightButton)) {
-                QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
-
-                // 1. CLIC DEL RATÓN: INICIAR DIBUJO
+                // MODO LÍNEA Y ARCO (Dibujo dinámico)
                 if (event->type() == QEvent::MouseButtonPress) {
                     if (m_currentMode == LINE_MODE) {
                         m_lineStart = scenePos;
@@ -529,38 +511,35 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                         m_scene->addItem(m_currentLineItem);
                         return true;
                     }
-                    else if (m_currentMode == ARC_MODE) {
-                        m_arcCenter = scenePos;
-                        m_currentArcItem = new QGraphicsEllipseItem(m_arcCenter.x(), m_arcCenter.y(), 0, 0);
-                        m_currentArcItem->setPen(QPen(m_currentDrawingColor, 2));
-                        m_currentArcItem->setZValue(10);
-                        m_scene->addItem(m_currentArcItem);
-                        return true;
-                    }
                 }
-                // 2. MOVIMIENTO DEL RATÓN: ACTUALIZAR DIBUJO EN TIEMPO REAL
                 else if (event->type() == QEvent::MouseMove) {
                     if (m_currentMode == LINE_MODE && m_currentLineItem) {
                         m_currentLineItem->setLine(QLineF(m_lineStart, scenePos));
                         return true;
                     }
-                    else if (m_currentMode == ARC_MODE && m_currentArcItem) {
-                        qreal radius = QLineF(m_arcCenter, scenePos).length();
-                        m_currentArcItem->setRect(m_arcCenter.x() - radius, m_arcCenter.y() - radius,
-                                                  radius * 2, radius * 2);
-                        return true;
-                    }
                 }
-                // 3. SOLTAR EL BOTÓN: FINALIZAR DIBUJO
                 else if (event->type() == QEvent::MouseButtonRelease) {
                     m_currentLineItem = nullptr;
                     m_currentArcItem = nullptr;
                     return true;
                 }
+
+                // MODO COORDENADAS (JUAN)
+                if (m_currentMode == COORDINATES_MODE && event->type() == QEvent::MouseButtonPress) {
+                    QRectF rect = m_scene->sceneRect();
+                    if (m_hLine) { m_scene->removeItem(m_hLine); delete m_hLine; }
+                    if (m_vLine) { m_scene->removeItem(m_vLine); delete m_vLine; }
+
+                    m_hLine = m_scene->addLine(rect.left(), scenePos.y(), rect.right(), scenePos.y(),
+                                               QPen(m_currentDrawingColor, 1, Qt::DashLine));
+                    m_vLine = m_scene->addLine(scenePos.x(), rect.top(), scenePos.x(), rect.bottom(),
+                                               QPen(m_currentDrawingColor, 1, Qt::DashLine));
+                    m_hLine->setZValue(15);
+                    m_vLine->setZValue(15);
+                    return true;
+                }
             }
         }
     }
-
-    // Para cualquier otro evento u otro objeto, llamamos al filtro base
     return QMainWindow::eventFilter(obj, event);
 }

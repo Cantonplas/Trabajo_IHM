@@ -20,6 +20,8 @@
 #include <QDateTime>
 #include <QGraphicsEllipseItem>
 #include <QColorDialog>
+#include <QtMath>
+#include <QPen>
 
 enum DrawMode {
     NONE,
@@ -29,16 +31,120 @@ enum DrawMode {
     TEXT_MODE,
     PROTRACTOR_MODE,
     RULER_MODE,
-    ERASER_MODE
+    ERASER_MODE,
+    COORDINATES_MODE
 };
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-// --- Añadir estos al principio del archivo si no están ---
-#include <QtMath>
-#include <QPen>
+class CompassItem : public QGraphicsItem {
+public:
+    CompassItem(const QPixmap &legPixmap, QColor *colorPtr)
+        : m_globalColorPtr(colorPtr), m_aperture(20.0), m_drawingArc(nullptr) {
+
+        m_legAnchor = new QGraphicsPixmapItem(legPixmap, this);
+        m_legPencil = new QGraphicsPixmapItem(legPixmap, this);
+
+        m_hingePoint = QPointF(legPixmap.width() / 2, 0);
+        m_legAnchor->setTransformOriginPoint(m_hingePoint);
+        m_legPencil->setTransformOriginPoint(m_hingePoint);
+
+        setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges);
+        updateLayout();
+    }
+
+    QRectF boundingRect() const override { return childrenBoundingRect(); }
+    void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) override {}
+
+    QPointF getAnchorTip() const { return m_legAnchor->mapToScene(m_hingePoint.x(), m_legAnchor->pixmap().height()); }
+    QPointF getPencilTip() const { return m_legPencil->mapToScene(m_hingePoint.x(), m_legPencil->pixmap().height()); }
+
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override {
+        if (event->button() == Qt::LeftButton) {
+            if (m_legPencil->contains(m_legPencil->mapFromItem(this, event->pos())))
+                m_isAdjusting = true;
+        } else if (event->button() == Qt::RightButton) {
+            m_isRotating = true;
+
+            // FIJAMOS EL CENTRO EN LA ESCENA: No cambiará aunque el compás se mueva
+            m_fixedCenterScene = getAnchorTip();
+            QPointF pencilTip = getPencilTip();
+
+            m_radius = QLineF(m_fixedCenterScene, pencilTip).length();
+            m_startAngle = QLineF(m_fixedCenterScene, pencilTip).angle();
+            m_lastAngle = m_startAngle;
+            m_currentSpan = 0;
+
+            m_drawingArc = new QGraphicsPathItem();
+            m_drawingArc->setPen(QPen(*m_globalColorPtr, 2));
+            m_drawingArc->setZValue(5);
+            scene()->addItem(m_drawingArc);
+        }
+        QGraphicsItem::mousePressEvent(event);
+    }
+
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override {
+        if (m_isAdjusting) {
+            QLineF line(m_hingePoint, event->pos());
+            qreal angleDiff = qAbs(line.angle() - 270.0);
+            if (angleDiff > 180) angleDiff = qAbs(angleDiff - 360);
+            m_aperture = qBound(5.0, angleDiff, 70.0);
+            updateLayout();
+        } else if (m_isRotating && m_drawingArc) {
+            // Usamos el centro FIJO capturado al hacer clic
+            qreal currentMouseAngle = QLineF(m_fixedCenterScene, event->scenePos()).angle();
+            qreal rotationStep = currentMouseAngle - m_lastAngle;
+            if (rotationStep > 180) rotationStep -= 360;
+            if (rotationStep < -180) rotationStep += 360;
+
+            setRotation(rotation() - rotationStep);
+            m_currentSpan += rotationStep;
+
+            QPainterPath path;
+            QRectF rect(m_fixedCenterScene.x() - m_radius, m_fixedCenterScene.y() - m_radius, m_radius * 2, m_radius * 2);
+            path.arcMoveTo(rect, m_startAngle);
+            path.arcTo(rect, m_startAngle, m_currentSpan);
+            m_drawingArc->setPath(path);
+            m_lastAngle = currentMouseAngle;
+        } else {
+            QGraphicsItem::mouseMoveEvent(event);
+        }
+    }
+
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override {
+        m_isAdjusting = m_isRotating = false;
+        m_drawingArc = nullptr;
+        QGraphicsItem::mouseReleaseEvent(event);
+    }
+
+private:
+    void updateLayout() {
+        // Guardamos donde estaba la aguja ANTES del cambio
+        QPointF oldTipScene = getAnchorTip();
+
+        m_legAnchor->setRotation(-m_aperture);
+        m_legPencil->setRotation(m_aperture);
+
+        // Ajustamos el pivote a la nueva posición de la aguja
+        QPointF tipLocal = m_legAnchor->mapToParent(QPointF(m_legAnchor->pixmap().width()/2, m_legAnchor->pixmap().height()));
+        setTransformOriginPoint(tipLocal);
+
+        // RE-POSICIONAR: Movemos el compás para que la aguja vuelva al sitio original
+        QPointF newTipScene = getAnchorTip();
+        QPointF offset = oldTipScene - newTipScene;
+        setPos(pos() + offset);
+    }
+
+    QGraphicsPixmapItem *m_legAnchor, *m_legPencil;
+    QGraphicsPathItem *m_drawingArc;
+    QColor *m_globalColorPtr;
+    QPointF m_hingePoint, m_fixedCenterScene;
+    qreal m_aperture, m_radius, m_startAngle, m_lastAngle, m_currentSpan;
+    bool m_isAdjusting = false, m_isRotating = false;
+};
 
 class MainWindow : public QMainWindow
 {
@@ -104,6 +210,11 @@ private:
 
     QPointF m_arcCenter;           // Punto donde pinchaste el centro
     QGraphicsEllipseItem *m_currentArcItem = nullptr;
+
+    QGraphicsLineItem *m_hLine = nullptr;
+    QGraphicsLineItem *m_vLine = nullptr;
+
+    CompassItem *m_compassItem = nullptr; // Añade esta variable
 
 };
 
