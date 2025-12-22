@@ -1,12 +1,23 @@
 #include "mainwindow.h"
 #include "logindialog.h"
 #include <QApplication>
+#include <QFile>
+#include <QTextStream>
 
 const int RESTART_CODE = 1000;
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    QFile file(":/style.qss");
+    if(file.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream stream(&file);
+        QString styleSheet = stream.readAll();
+
+        a.setStyleSheet(styleSheet);
+        file.close();
+    }
 
     int currentExitCode = 0;
 

@@ -17,6 +17,9 @@
 #include <QPainter>
 #include <QSvgRenderer>
 #include <QFileDialog>
+#include <QInputDialog>
+#include <QLineEdit>
+
 
 MainWindow::MainWindow(User* currentUser, QWidget *parent)
     : QMainWindow(parent)
@@ -114,7 +117,6 @@ void MainWindow::on_btnRandom_clicked()
 }
 
 void MainWindow::on_btnShowCoordinates_clicked(bool checked) {
-    // Tu lógica de coordenadas
 }
 
 void MainWindow::on_btnAvatar_clicked()
@@ -210,53 +212,65 @@ void MainWindow::setupToolModes()
 
 void MainWindow::showSvgTool(const QString &resourcePath, QGraphicsPixmapItem *&item)
 {
+    //COmpás
+    if (resourcePath.contains("compass_leg")) {
+        if (!m_compassItem) {
+            QSvgRenderer renderer(resourcePath);
+            QSize renderSize(10, 250);
+            QPixmap pixmap(renderSize);
+            pixmap.fill(Qt::transparent);
+            QPainter painter(&pixmap);
+            renderer.render(&painter);
+
+            m_compassItem = new CompassItem(pixmap, &m_currentDrawingColor);
+            m_scene->addItem(m_compassItem);
+
+            QPointF center = ui->graphicsView->mapToScene(ui->graphicsView->viewport()->rect().center());
+            m_compassItem->setPos(center);
+        }
+        m_compassItem->setVisible(true);
+        return;
+    }
+
+    //regla y transporatodr:
     if (!item) {
         QSvgRenderer renderer(resourcePath);
-
-        // --- DEFINICIÓN DEL TAMAÑO DE RENDERIZADO ---
-        QSize renderSize;
-
-        // Definimos tamaños apropiados para cada utensilio
-        if (resourcePath.contains("ruler.svg")) {
-            // Ajustar para que se vea alargada (e.g., 280x60 o la proporción de tu SVG)
-            renderSize = QSize(800, 60);
-        } else if (resourcePath.contains("transportador.svg")) {
-            // Mantener el transportador cuadrado o grande para la precisión angular
-            renderSize = QSize(500, 500);
-        } else {
-            renderSize = QSize(100, 100); // Tamaño por defecto para otros elementos
-        }
+        QSize renderSize = resourcePath.contains("ruler") ? QSize(1000, 80) : QSize(500, 500);
 
         QPixmap pixmap(renderSize);
         pixmap.fill(Qt::transparent);
-
         QPainter painter(&pixmap);
-        // La renderización se ajusta automáticamente al tamaño del QPixmap (renderSize)
         renderer.render(&painter);
 
-        // ... (el resto del código se mantiene)
-        item = new QGraphicsPixmapItem(pixmap);
-        item->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemSendsGeometryChanges |
-                       QGraphicsItem::ItemIgnoresTransformations);
+        if (resourcePath.contains("ruler")) {
+            m_rulerItem = new RulerItem(pixmap, &m_currentDrawingColor);
+            item = m_rulerItem;
+        } else {
+            item = new QGraphicsPixmapItem(pixmap);
+            item->setFlags(QGraphicsItem::ItemIsMovable |
+                           QGraphicsItem::ItemSendsGeometryChanges);
+            item->setFlag(QGraphicsItem::ItemIgnoresTransformations, false); // ✅ clave
+            item->setTransformOriginPoint(item->boundingRect().center());
+        }
 
         m_scene->addItem(item);
-
         QPointF center = ui->graphicsView->mapToScene(ui->graphicsView->viewport()->rect().center());
         item->setPos(center - QPointF(renderSize.width()/2, renderSize.height()/2));
     }
-
     item->setVisible(true);
+
 }
 
-// =========================================================================
-// SLOTS PARA LA BARRA DE HERRAMIENTAS
-// =========================================================================
 
 void MainWindow::onToolModeToggled(QAbstractButton *button, bool checked)
 {
-    // Ocultar todas las herramientas arrastrables al cambiar de modo
     if (m_protractorItem) m_protractorItem->setVisible(false);
     if (m_rulerItem) m_rulerItem->setVisible(false);
+    if (m_compassItem) m_compassItem->setVisible(false);
+
+    // Si Juan cambia de herramienta, borramos las líneas de coordenadas anteriores
+    if (m_hLine) { m_scene->removeItem(m_hLine); delete m_hLine; m_hLine = nullptr; }
+    if (m_vLine) { m_scene->removeItem(m_vLine); delete m_vLine; m_vLine = nullptr; }
 
     m_currentMode = NONE;
 
@@ -265,57 +279,49 @@ void MainWindow::onToolModeToggled(QAbstractButton *button, bool checked)
             m_currentMode = POINT_MODE;
         } else if (button == ui->btnDrawLine) {
             m_currentMode = LINE_MODE;
-        } else if (button == ui->btnDrawArc) {
-            m_currentMode = ARC_MODE;
         } else if (button == ui->btnAnnotateText) {
             m_currentMode = TEXT_MODE;
         } else if (button == ui->btnEraser) {
             m_currentMode = ERASER_MODE;
-        }
-
-        // 3.8/3.9: Mostrar/crear la herramienta SVG arrastrable (como PixmapItem)
-        else if (button == ui->btnProtractor) {
+        } else if (button == ui->btnProtractor) {
             m_currentMode = PROTRACTOR_MODE;
             showSvgTool(":/resources/icons/transportador.svg", m_protractorItem);
-
         } else if (button == ui->btnRulerDistance) {
             m_currentMode = RULER_MODE;
             showSvgTool(":/resources/icons/ruler.svg", m_rulerItem);
         }
+        // AÑADE ESTO:
+        else if (button == ui->btnShowCoordinates) {
+            m_currentMode = COORDINATES_MODE;
+        }
+        else if (button == ui->btnDrawArc) {
+            m_currentMode = ARC_MODE;
+            showSvgTool(":/resources/icons/compass_leg.svg", (QGraphicsPixmapItem*&)m_compassItem);
+        }
     }
-
-    qDebug() << "Modo de Herramienta actual:" << m_currentMode;
 }
 
 void MainWindow::on_btnClearMap_clicked()
 {
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Confirmar Limpieza",
-                                  "¿Está seguro de que desea limpiar todas las marcas de la carta?",
+                                  "¿Está seguro de que desea limpiar todas las marcas?",
                                   QMessageBox::Yes|QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
         QList<QGraphicsItem*> itemsToRemove;
 
         for (QGraphicsItem* item : m_scene->items()) {
+            // Identificamos el mapa base
+            bool isMapBase = (item == m_mapItem);
 
-            // 1. Identificar el mapa base: Asumimos que es el único QGraphicsPixmapItem que NO es una herramienta.
-            // Si el mapa base es el primer QGraphicsItem añadido, podemos asumir que es el primer elemento de la escena
-            // o que es el único QGraphicsPixmapItem que no tiene las banderas de tool.
+            bool isSvgTool = (item == m_protractorItem ||
+                              item == m_rulerItem ||
+                              item == m_compassItem);
 
-            // --- CÓDIGO CLAVE CORREGIDO ---
-
-            bool isMapBase = (qgraphicsitem_cast<QGraphicsPixmapItem*>(item) != nullptr &&
-                              item != m_protractorItem &&
-                              item != m_rulerItem);
-
-            bool isSvgTool = (item == m_protractorItem || item == m_rulerItem);
-
-            // Si el ítem NO es el mapa base Y NO es una de las herramientas SVG, se ELIMINA.
             if (!isMapBase && !isSvgTool) {
                 itemsToRemove.append(item);
             }
-            // -----------------------------
         }
 
         for (QGraphicsItem* item : itemsToRemove) {
@@ -323,22 +329,20 @@ void MainWindow::on_btnClearMap_clicked()
             delete item;
         }
 
-        // Si hay un modo de herramienta activo, lo desactiva.
         if (m_toolGroup->checkedButton()) {
             m_toolGroup->checkedButton()->setChecked(false);
             m_currentMode = NONE;
         }
-
-        qDebug() << "Carta limpiada (3.7).";
     }
 }
 
 void MainWindow::on_btnChangeColor_clicked()
 {
-    QColor newColor = QColorDialog::getColor(Qt::red, this, "Seleccione el color para las marcas");
+    QColor newColor = QColorDialog::getColor(m_currentDrawingColor, this, "Seleccione el color para las marcas");
 
     if (newColor.isValid()) {
-        qDebug() << "Nuevo color seleccionado:" << newColor.name();
+        m_currentDrawingColor = newColor;
+        qDebug() << "Nuevo color seleccionado:" << m_currentDrawingColor.name();
     }
 }
 
@@ -349,10 +353,13 @@ void MainWindow::loadChart()
         qDebug() << "Error: No se pudo cargar la imagen del mapa.";
         return;
     }
-    QGraphicsPixmapItem *item = m_scene->addPixmap(pixmap);
+    m_mapItem = m_scene->addPixmap(pixmap);
+    m_mapItem->setZValue(0);
+
     m_scene->setSceneRect(pixmap.rect());
+    ui->graphicsView->resetTransform();
     ui->graphicsView->scale(0.4, 0.4);
-    ui->graphicsView->centerOn(item->boundingRect().center());
+    ui->graphicsView->centerOn(m_mapItem->boundingRect().center());
 }
 
 void MainWindow::setupProblemUI(int index)
@@ -408,7 +415,6 @@ void MainWindow::on_btnCheck_clicked()
             m_sessionFaults++;
             QMessageBox::critical(this, "Incorrecto", "Esa no es la respuesta correcta.");
         }
-        // ---------------------------------------------------------
     }
 }
 
@@ -453,79 +459,155 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     QMainWindow::closeEvent(event);
 }
-// =========================================================================
-// CÓDIGO AÑADIDO: Lógica de Dibujo de Líneas (Basado en el profesor)
-// =========================================================================
 
-// Esta función es necesaria para implementar la lógica del filtro de eventos
-// La mantenemos para compatibilidad si usas QAction toggled.
-// En tu caso, la activación del modo se realiza en onToolModeToggled.
 void MainWindow::setDrawLineMode(bool enabled)
 {
-    // Esta función no se usa directamente con tu sistema de botones,
-    // pero la dejamos si se usa un QAction por separado.
-    // La verdadera activación de modo ocurre en onToolModeToggled()
-
-    // Si la función fuera usada, aquí se activaría el modo y el cursor:
-    // m_drawLineMode = enabled;
-    // if (m_drawLineMode) view->setCursor(Qt::CrossCursor);
-    // else view->unsetCursor();
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    // En tu implementación, 'obj' será ui->graphicsView->viewport()
-    if (obj == ui->graphicsView->viewport()) {
+    if (obj != ui->graphicsView->viewport())
+        return QMainWindow::eventFilter(obj, event);
 
-        // Adaptación: Sustituimos m_drawLineMode por m_currentMode == LINE_MODE
-        if (m_currentMode != LINE_MODE)
-            return false; // No estamos en modo línea, dejamos que la vista lo gestione (e.g., arrastre)
+    // Solo eventos de ratón
+    if (event->type() != QEvent::MouseButtonPress &&
+        event->type() != QEvent::MouseMove &&
+        event->type() != QEvent::MouseButtonRelease)
+        return QMainWindow::eventFilter(obj, event);
 
-        if (event->type() == QEvent::MouseButtonPress) {
-            auto *e = static_cast<QMouseEvent*>(event);
+    QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+    QPointF scenePos = ui->graphicsView->mapToScene(mouseEvent->pos());
 
-            // Usar el botón derecho para iniciar la línea (como en el código del profesor)
-            if (e->button() == Qt::RightButton) {
-                QPointF scenePos = ui->graphicsView->mapToScene(e->pos());
-                m_lineStart = scenePos; // Guardar punto de inicio
-
-                // Usamos un QPen (debes definir el color actual de dibujo)
-                QPen pen(Qt::red, 2); // Usamos un grosor menor para el dibujo final
-                m_currentLineItem = new QGraphicsLineItem();
-
-                m_currentLineItem->setZValue(10); // Aseguramos que esté por encima del mapa
-                m_currentLineItem->setPen(pen);
-
-                // Inicializamos la línea como un punto
-                m_currentLineItem->setLine(QLineF(m_lineStart, m_lineStart));
-                ui->graphicsView->scene()->addItem(m_currentLineItem);
-
-                return true; // Consumimos el evento
-            }
-        }
-        else if (event->type() == QEvent::MouseMove) {
-            auto *e = static_cast<QMouseEvent*>(event);
-
-            // Si el botón derecho está presionado Y tenemos un objeto de línea
-            if (e->buttons() & Qt::RightButton && m_currentLineItem) {
-                QPointF p2 = ui->graphicsView->mapToScene(e->pos());
-                // Redibujar la línea continuamente hasta la posición actual del ratón
-                m_currentLineItem->setLine(QLineF(m_lineStart, p2));
-                return true;
-            }
-        }
-        else if (event->type() == QEvent::MouseButtonRelease) {
-            auto *e = static_cast<QMouseEvent*>(event);
-
-            // Al soltar el botón derecho, la línea se finaliza
-            if (e->button() == Qt::RightButton && m_currentLineItem) {
-                // Aquí se podría guardar la línea final o validar la longitud
-                m_currentLineItem = nullptr; // La línea ya está en la escena, solo liberamos el puntero temporal
-                return true;
-            }
+    // Regla
+    if (m_rulerItem && m_rulerItem->isVisible()) {
+        if (ui->graphicsView->itemAt(mouseEvent->pos()) == m_rulerItem) {
+            return false;
         }
     }
 
-    // Si el evento no fue manejado por nuestra lógica de dibujo, lo pasamos al padre
-    return QMainWindow::eventFilter(obj, event);
+    // Compás
+    if (m_compassItem && m_compassItem->isVisible()) {
+        if (m_compassItem->contains(m_compassItem->mapFromScene(scenePos))) {
+            return false;
+        }
+    }
+
+    // Solo boton derecho para dibujar y editar
+
+    if (!(mouseEvent->button() == Qt::RightButton ||
+          (mouseEvent->buttons() & Qt::RightButton)))
+        return false;
+
+   // Punto
+    if (m_currentMode == POINT_MODE &&
+        event->type() == QEvent::MouseButtonPress) {
+
+        qreal r = 3.0;
+        QGraphicsEllipseItem *point =
+            m_scene->addEllipse(scenePos.x() - r, scenePos.y() - r,
+                                r * 2, r * 2,
+                                QPen(Qt::transparent),
+                                QBrush(m_currentDrawingColor));
+        point->setZValue(10);
+        return true;
+    }
+
+    //Linea
+    if (m_currentMode == LINE_MODE) {
+
+        if (event->type() == QEvent::MouseButtonPress) {
+            m_lineStart = scenePos;
+            m_currentLineItem = new QGraphicsLineItem(QLineF(scenePos, scenePos));
+            m_currentLineItem->setPen(QPen(m_currentDrawingColor, 2));
+            m_currentLineItem->setZValue(10);
+            m_scene->addItem(m_currentLineItem);
+            return true;
+        }
+
+        if (event->type() == QEvent::MouseMove && m_currentLineItem) {
+            m_currentLineItem->setLine(QLineF(m_lineStart, scenePos));
+            return true;
+        }
+
+        if (event->type() == QEvent::MouseButtonRelease) {
+            m_currentLineItem = nullptr;
+            return true;
+        }
+    }
+
+    //Texto
+    if (m_currentMode == TEXT_MODE &&
+        event->type() == QEvent::MouseButtonPress) {
+
+        bool ok = false;
+        QString text = QInputDialog::getText(
+            this,
+            "Anotar texto",
+            "Introduce el texto:",
+            QLineEdit::Normal,
+            "",
+            &ok
+            );
+
+        text = text.trimmed();
+        if (ok && !text.isEmpty()) {
+            QGraphicsTextItem *txtItem =
+                m_scene->addText(text, QFont("Arial", 14));
+            txtItem->setDefaultTextColor(m_currentDrawingColor);
+            txtItem->setPos(scenePos);
+            txtItem->setZValue(10);
+            txtItem->setFlags(QGraphicsItem::ItemIsMovable |
+                              QGraphicsItem::ItemIsSelectable);
+        }
+        return true;
+    }
+
+    //Goma:
+    if (m_currentMode == ERASER_MODE &&
+        event->type() == QEvent::MouseButtonPress) {
+
+        QList<QGraphicsItem*> items =
+            m_scene->items(scenePos,
+                           Qt::IntersectsItemShape,
+                           Qt::DescendingOrder,
+                           ui->graphicsView->transform());
+
+        for (QGraphicsItem *it : items) {
+
+            // No borrar mapa ni herramientas
+            if (it == m_mapItem) continue;
+            if (it == m_protractorItem) continue;
+            if (it == m_rulerItem) continue;
+            if (it == m_compassItem) continue;
+
+            m_scene->removeItem(it);
+            delete it;
+            break; // solo uno
+        }
+        return true;
+    }
+
+    //Coordenadas
+    if (m_currentMode == COORDINATES_MODE &&
+        event->type() == QEvent::MouseButtonPress) {
+
+        QRectF rect = m_scene->sceneRect();
+
+        if (m_hLine) { m_scene->removeItem(m_hLine); delete m_hLine; }
+        if (m_vLine) { m_scene->removeItem(m_vLine); delete m_vLine; }
+
+        m_hLine = m_scene->addLine(rect.left(), scenePos.y(),
+                                   rect.right(), scenePos.y(),
+                                   QPen(m_currentDrawingColor, 1, Qt::DashLine));
+
+        m_vLine = m_scene->addLine(scenePos.x(), rect.top(),
+                                   scenePos.x(), rect.bottom(),
+                                   QPen(m_currentDrawingColor, 1, Qt::DashLine));
+
+        m_hLine->setZValue(15);
+        m_vLine->setZValue(15);
+        return true;
+    }
+
+    return false;
 }

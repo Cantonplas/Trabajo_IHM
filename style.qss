@@ -1,0 +1,270 @@
+/* --- ESTILO GENERAL --- */
+QMainWindow {
+    background-color: #1e1e24; /* Fondo muy oscuro */
+    color: #e0e0e0;
+}
+
+QWidget {
+    font-family: "Segoe UI", "Roboto", sans-serif;
+    font-size: 13px;
+    color: #e0e0e0;
+}
+
+/* --- BARRA SUPERIOR (frameTopBar) --- */
+#frameTopBar {
+    background-color: #25252d;
+    border-bottom: 1px solid #33333c;
+}
+
+#btnAvatar {
+    border: 2px solid #555;
+    border-radius: 20px; /* Hace el botón circular */
+    background-color: #3e3e4a;
+}
+
+#btnAvatar:hover {
+    border-color: #0078d7;
+}
+
+/* --- BARRA LATERAL DE HERRAMIENTAS (frameTools) --- */
+#frameTools {
+    background-color: #1e1e24; /* Fondo gris claro para la barra */
+    border-right: 1px solid #1e1e24;
+}
+
+#frameTools QPushButton {
+    background-color: white;   /* Fondo blanco para los botones */
+    border: 1px solid #bbb;    /* Borde gris visible para delimitarlos */
+    border-radius: 8px;        /* Bordes redondeados */
+    padding: 5px;
+    margin: 4px 2px;           /* Un poco más de separación vertical */
+}
+
+/* Estado al pasar el ratón */
+#frameTools QPushButton:hover {
+    background-color: #f5f5f5; /* Un blanco ligeramente más oscuro */
+    border-color: #999;        /* Borde un poco más oscuro */
+}
+
+/* Estado cuando el botón está activado (checked) */
+#frameTools QPushButton:checked {
+    background-color: #e3f2fd; /* Azul muy claro para indicar activo */
+    border: 2px solid #0078d7; /* Borde azul más grueso */
+}
+
+/* Estado al hacer clic */
+#frameTools QPushButton:pressed {
+    background-color: #d0e0f0;
+    border-color: #005a9e;
+}
+
+/* --- ÁREA DEL MAPA (GraphicsView y Zoom) --- */
+#graphicsView {
+    border: none;
+    background-color: #16161a;
+    border-radius: 10px;
+    margin: 5px;
+}
+
+#btnZoomIn, #btnZoomOut {
+    background-color: #33333c;
+    border: 1px solid #444;
+    border-radius: 6px; /* Un poco más redondeado para el nuevo tamaño */
+    color: white;
+    font-weight: bold;
+
+    /* TAMAÑO: Ajustamos el tamaño mínimo */
+    min-width: 30px;
+    min-height: 30px;
+
+    /* FUENTE: Para que los símbolos crezcan con el botón */
+    font-size: 20px;
+
+    /* ESPACIADO: El margen crea separación entre ellos y el borde */
+    margin: 10px 5px;
+}
+
+#btnZoomIn:hover, #btnZoomOut:hover {
+    background-color: #444450;
+    border-color: #666;
+}
+
+/* --- PANEL DERECHO (frameRightPanel) --- */
+#frameRightPanel {
+    background-color: #25252d;
+    border-left: 1px solid #33333c;
+}
+
+/* Títulos */
+#labelSelectTitle, #labelTitle {
+    color: #00aaff;
+    margin-bottom: 5px;
+}
+
+/* Lista de problemas */
+QListWidget {
+    background-color: #1e1e24;
+    border: 1px solid #33333c;
+    border-radius: 5px;
+    outline: none;
+    padding: 5px;
+}
+
+QListWidget::item {
+    padding: 10px;
+    border-bottom: 1px solid #2d2d35;
+}
+
+QListWidget::item:selected {
+    background-color: #3e3e4a;
+    color: #00aaff;
+    border-left: 3px solid #00aaff;
+}
+
+/* Botones Principales */
+#btnRandom, #btnCheck {
+    background-color: #0078d7;
+    color: white;
+    border-radius: 6px;
+    font-weight: bold;
+    border: none;
+}
+
+#btnRandom:hover, #btnCheck:hover {
+    background-color: #0086f0;
+}
+
+#btnRandom:pressed, #btnCheck:pressed {
+    background-color: #005a9e;
+}
+
+#btnClose {
+    background-color: transparent;
+    border: 1px solid #555;
+    color: #bbb;
+}
+
+#btnClose:hover {
+    background-color: #333;
+    color: white;
+}
+
+/* Radio Buttons */
+QRadioButton {
+    spacing: 8px;
+    padding: 5px;
+}
+
+QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+}
+
+/* Botón Cerrar Sesión (respetando tu color rojo pero dándole estilo) */
+#btnLogout {
+    background-color: #c0392b;
+    border: none;
+    padding: 8px;
+    font-size: 12px;
+}
+
+#btnLogout:hover {
+    background-color: #e74c3c;
+}
+
+/***********************************************************
+ * DIÁLOGO DE ACCESO (LOGIN DIALOG)                        *
+ ***********************************************************/
+
+/* Fondo del diálogo principal */
+QDialog#LoginDialog {
+    background-color: #1e1e24;
+}
+
+/* --- TÍTULO "CARTA NÁUTICA" --- */
+QLabel#label {
+    font-family: "SimSun";
+    font-size: 26pt;
+    color: #ffffff;
+    background-color: transparent;
+    border: none;
+    padding: 10px;
+
+    /* ESTO ASEGURA EL CENTRADO HORIZONTAL */
+    qproperty-alignment: 'AlignCenter';
+}
+
+/* --- TEXTO "¿Aún no tienes cuenta?" --- */
+QLabel#labelInfo1 {
+    color: #bbbbbb;
+    qproperty-alignment: 'AlignCenter';
+}
+
+/* --- CAMPOS DE ENTRADA (QLineEdit y QDateEdit) --- */
+QLineEdit, QDateEdit {
+    background-color: #16161a;
+    border: 1px solid #33333c;
+    border-radius: 5px;
+    padding: 5px 10px;
+    color: #e0e0e0;
+    selection-background-color: #0078d7;
+}
+
+QLineEdit:focus, QDateEdit:focus {
+    border: 1px solid #00aaff;
+}
+
+/* --- BOTONES PRINCIPALES (Entrar y Crear Cuenta) --- */
+QPushButton#btnLogin, QPushButton#btnRegister {
+    background-color: #0078d7;
+    color: white;
+    border-radius: 6px;
+    font-weight: bold;
+    padding: 10px;
+    font-size: 14px;
+}
+
+QPushButton#btnLogin:hover, QPushButton#btnRegister:hover {
+    background-color: #0086f0;
+}
+
+QPushButton#btnLogin:pressed, QPushButton#btnRegister:pressed {
+    background-color: #005a9e;
+}
+
+/* --- BOTONES DE NAVEGACIÓN (Enlaces) --- */
+QPushButton#btnGotoRegister, QPushButton#btnGotoLogin {
+    color: #00aaff;
+    background: transparent;
+    border: none;
+    text-decoration: underline;
+}
+
+QPushButton#btnGotoRegister:hover, QPushButton#btnGotoLogin:hover {
+    color: #4db8ff;
+}
+
+/* --- PREVIEW DEL AVATAR --- */
+QLabel#lblAvatarPreview {
+    background-color: #16161a;
+    border: 2px dashed #33333c;
+    border-radius: 32px; /* Efecto circular */
+}
+
+QPushButton#btnSelectAvatar {
+    background-color: #3e3e4a;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+/* --- TEXTOS AUXILIARES --- */
+QLabel#labelInfo1, QLabel#lblUser, QLabel#lblPass, QLabel#l1, QLabel#lemail, QLabel#l2, QLabel#l3, QLabel#l7 {
+    color: #bbbbbb;
+}
+
+/* Color del título de los GroupBox para que sea legible */
+QGroupBox::title {
+    color: #00aaff;
+}
